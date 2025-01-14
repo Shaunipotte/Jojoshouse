@@ -1,121 +1,133 @@
+# -*- coding: utf-8 -*-
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-import dm4bem
+#import dm4bem
+
+l = 3               # m length of the cubic room
+
+
+air = {'Density': 1.2,                      # kg/m³
+       'Specific heat': 1000}               # J/(kg·K)
+pd.DataFrame(air, index=['Air'])
+
+
 
 concrete = {'Conductivity': 1.400,          # W/(m·K)
             'Density': 2300.0,              # kg/m³
             'Specific heat': 880,           # J/(kg⋅K)
             'Width': 0.2,                   # m
             'Surface': 5 * l**2}            # m²
-
 insulation = {'Conductivity': 0.027,        # W/(m·K)
               'Density': 55.0,              # kg/m³
               'Specific heat': 1210,        # J/(kg⋅K)
               'Width': 0.08,                # m
               'Surface': 5 * l**2}          # m²
-
 glass = {'Conductivity': 1.4,               # W/(m·K)
          'Density': 2500,                   # kg/m³
          'Specific heat': 1210,             # J/(kg⋅K)
          'Width': 0.04,                     # m
          'Surface': l**2}                   # m²
-
-out_wall = pd.DataFrame.from_dict({'Layer_out': concrete,
-                               'Layer_in': insulation,
-                               'Glass': glass},
-                              orient='index')
-
-
-
-
-l = 3               # m length of the cubic room
-Sg = l**2           # m² surface area of the glass wall
-Sc = Si = 5 * Sg    # m² surface area of concrete & insulation of the 5 walls
-
-air = {'Density': 1.2,                      # kg/m³
-       'Specific heat': 1000}               # J/(kg·K)
-pd.DataFrame(air, index=['Air'])
-
 wall = pd.DataFrame.from_dict({'Layer_out': concrete,
                                'Layer_in': insulation,
                                'Glass': glass},
                               orient='index')
-wall
 
-# radiative properties
-ε_wLW = 0.85    # long wave emmisivity: wall surface (concrete)
-ε_gLW = 0.90    # long wave emmisivity: glass pyrex
+
+
+# radiative properties (for the sun radiations)
 α_wSW = 0.25    # short wave absortivity: white smooth surface
 α_gSW = 0.38    # short wave absortivity: reflective blue glass
 τ_gSW = 0.30    # short wave transmitance: reflective blue glass
 
-σ = 5.67e-8     # W/(m²⋅K⁴) Stefan-Bolzmann constant
+
 
 h = pd.DataFrame([{'in': 8., 'out': 25}], index=['h'])  # W/(m²⋅K)
-h
+
+
 
 # conduction
 G_cd = wall['Conductivity'] / wall['Width'] * wall['Surface']
 pd.DataFrame(G_cd, columns=['Conductance'])
 
 
+
 # convection
 Gw = h * wall['Surface'].iloc[0]     # wall
 Gg = h * wall['Surface'].iloc[2]     # glass
 
-# view factor wall-glass
-Fwg = glass['Surface'] / concrete['Surface']
 
 
-T_int = 273.15 + np.array([0, 40])
-coeff = np.round((4 * σ * T_int**3), 1)
-print(f'For 0°C < (T/K - 273.15)°C < 40°C, 4σT³/[W/(m²·K)] ∈ {coeff}')
 
-T_int = 273.15 + np.array([10, 30])
-coeff = np.round((4 * σ * T_int**3), 1)
-print(f'For 10°C < (T/K - 273.15)°C < 30°C, 4σT³/[W/(m²·K)] ∈ {coeff}')
 
-T_int = 273.15 + 20
-coeff = np.round((4 * σ * T_int**3), 1)
-print(f'For (T/K - 273.15)°C = 20°C, 4σT³ = {4 * σ * T_int**3:.1f} W/(m²·K)')
+#### Radiation long ##### Négligé
 
-# for 0°C < (T/K - 273.15)°C < 40°C, 4σT³/[W/(m²·K)] ∈ [4.6 7. ]
-# for 10°C < (T/K - 273.15)°C < 30°C, 4σT³/[W/(m²·K)] ∈ [5.1 6.3]
-# for (T/K - 273.15)°C = 20°C, 4σT³ = 5.7 W/(m²·K)
+# T_int = 273.15 + np.array([0, 40])
+# coeff = np.round((4 * σ * T_int**3), 1)
+# print(f'For 0°C < (T/K - 273.15)°C < 40°C, 4σT³/[W/(m²·K)] ∈ {coeff}')
 
-# long wave radiation
-Tm = 20 + 273   # K, mean temp for radiative exchange
 
-GLW1 = 4 * σ * Tm**3 * ε_wLW / (1 - ε_wLW) * wall['Surface']['Layer_in']
-GLW12 = 4 * σ * Tm**3 * Fwg * wall['Surface']['Layer_in']
-GLW2 = 4 * σ * Tm**3 * ε_gLW / (1 - ε_gLW) * wall['Surface']['Glass']
+# T_int = 273.15 + np.array([10, 30])
+# coeff = np.round((4 * σ * T_int**3), 1)
+# print(f'For 10°C < (T/K - 273.15)°C < 30°C, 4σT³/[W/(m²·K)] ∈ {coeff}')
 
-GLW = 1 / (1 / GLW1 + 1 / GLW12 + 1 / GLW2)
+
+# T_int = 273.15 + 20
+# coeff = np.round((4 * σ * T_int**3), 1)
+# print(f'For (T/K - 273.15)°C = 20°C, 4σT³ = {4 * σ * T_int**3:.1f} W/(m²·K)')
+
+
+# # long wave radiation
+# Tm = 20 + 273   # K, mean temp for radiative exchange
+
+# GLW1 = 4 * σ * Tm**3 * ε_wLW / (1 - ε_wLW) * wall['Surface']['Layer_in']
+# GLW12 = 4 * σ * Tm**3 * Fwg * wall['Surface']['Layer_in']
+# GLW2 = 4 * σ * Tm**3 * ε_gLW / (1 - ε_gLW) * wall['Surface']['Glass']
+
+# GLW = 1 / (1 / GLW1 + 1 / GLW12 + 1 / GLW2)
+
+
+
+
 
 # ventilation flow rate
 Va = l**3                   # m³, volume of air
-ACH = 1                     # 1/h, air changes per hour
+ACH = 1                     # 1/h, air changes per hour ###### A modifier ######
 Va_dot = ACH / 3600 * Va    # m³/s, air infiltration
 
 # ventilation & advection
 Gv = air['Density'] * air['Specific heat'] * Va_dot
 
 
-# P-controler gain
+
+##### P-controler gain ######
 # Kp = 1e4            # almost perfect controller Kp -> ∞
 # Kp = 1e-3           # no controller Kp -> 0
 Kp = 0
 
-# glass: convection outdoor & conduction
-Ggs = float(1 / (1 / Gg.loc['h', 'out'] + 1 / (2 * G_cd['Glass'])))
 
+
+# glass: convection outdoor & conduction
+Ggs = float(1 / (1 / Gg.loc['h', 'out'] + 1 / (2 * G_cd['Glass'])))    #### Why x2 ? ####  
+
+
+
+# Capacity
 C = wall['Density'] * wall['Specific heat'] * wall['Surface'] * wall['Width']
 pd.DataFrame(C, columns=['Capacity'])
 
 C['Air'] = air['Density'] * air['Specific heat'] * Va
 pd.DataFrame(C, columns=['Capacity'])
+
+
+
+
+
+
+
+###### Mettre notre cas ######
 
 # temperature nodes
 θ = ['θ0', 'θ1', 'θ2', 'θ3', 'θ4', 'θ5', 'θ6', 'θ7']
@@ -124,15 +136,15 @@ pd.DataFrame(C, columns=['Capacity'])
 q = ['q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11']
 
 # temperature nodes
-nθ = 8      # number of temperature nodes
-θ = [f'θ{i}' for i in range(8)]
+nθ = len(θ)      # number of temperature nodes
+θ = [f'θ{i}' for i in range(nθ)]
 
 # flow-rate branches
-nq = 12     # number of flow branches
-q = [f'q{i}' for i in range(12)]
+nq = len(q)     # number of flow branches
+q = [f'q{i}' for i in range(nq)]
 
 
-A = np.zeros([12, 8])       # n° of branches X n° of nodes
+A = np.zeros([nq, nθ])       # n° of branches X n° of nodes
 A[0, 0] = 1                 # branch 0: -> node 0
 A[1, 0], A[1, 1] = -1, 1    # branch 1: node 0 -> node 1
 A[2, 1], A[2, 2] = -1, 1    # branch 2: node 1 -> node 2
@@ -152,7 +164,7 @@ G = np.array(np.hstack(
     [Gw['out'],
      2 * G_cd['Layer_out'], 2 * G_cd['Layer_out'],
      2 * G_cd['Layer_in'], 2 * G_cd['Layer_in'],
-     GLW,
+     0,
      Gw['in'],
      Gg['in'],
      Ggs,
