@@ -1,3 +1,23 @@
-#ici les premières lignes
-for i in range 2:
-  print(f"j'ai faim")
+concrete = {'Conductivity': 1.400,          # W/(m·K)
+            'Density': 2300.0,              # kg/m³
+            'Specific heat': 880,           # J/(kg⋅K)
+            'Width': 0.2,                   # m
+            'Surface': 5 * l**2}            # m²
+
+insulation = {'Conductivity': 0.027,        # W/(m·K)
+              'Density': 55.0,              # kg/m³
+              'Specific heat': 1210,        # J/(kg⋅K)
+              'Width': 0.08,                # m
+              'Surface': 5 * l**2}          # m²
+
+glass = {'Conductivity': 1.4,               # W/(m·K)
+         'Density': 2500,                   # kg/m³
+         'Specific heat': 1210,             # J/(kg⋅K)
+         'Width': 0.04,                     # m
+         'Surface': l**2}                   # m²
+
+#out_wall = pd.DataFrame.from_dict({'Layer_out': concrete,
+#                               'Layer_in': insulation,
+#                               'Glass': glass},
+#                              orient='index')
+
