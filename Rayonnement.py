@@ -155,3 +155,89 @@ total = dir_rad + dif_rad + ref_rad
 total.plot()
 
 
+
+           #Façade NORD 
+surface_orientation = {'slope': 90,     # 90° car la paroie est verticale 
+                       'azimuth': 180,    # 0° car on est orienté plein Nord
+                       'latitude': 45.77}  # °
+albedo = 0.2
+
+ # Tracer du rayonnement solaire 
+    
+#Plot solar radiation
+rad_surf = sol_rad_tilt_surf(
+    weather_data, surface_orientation, albedo)
+
+rad_surf.plot()
+plt.xlabel("Time")
+plt.ylabel("Solar irradiance,  Φ / (W·m⁻²)")
+plt.show()
+
+#Pour ibtenir la valeur à un temps spécifique : 
+print(f"{rad_surf.loc['2000-06-29 12:00']['direct']:.0f} W/m²")
+
+#Pour avoir le max et le min, cad une valeur spécifique
+print(f"Mean. direct irradiation: {rad_surf['direct'].mean():.0f} W/m²")
+print(f"Max. direct irradiation:  {rad_surf['direct'].max():.0f} W/m²")
+print(f"Direct solar irradiance is maximum on {rad_surf['direct'].idxmax()}")
+
+
+
+            # Calculation of solar radiation on a tilted surface from weather data
+
+β = surface_orientation['slope']
+γ = surface_orientation['azimuth']
+ϕ = surface_orientation['latitude']
+
+# Transform degrees in radians
+β = β * np.pi / 180
+γ = γ * np.pi / 180
+ϕ = ϕ * np.pi / 180
+
+n = weather_data.index.dayofyear
+
+
+        # Rayonnement directe 
+declination_angle = 23.45 * np.sin(360 * (284 + n) / 365 * np.pi / 180)
+δ = declination_angle * np.pi / 180 # C'est l'angele entre l'équateur et la position du soleil lorsqu'il est à son max
+
+hour = weather_data.index.hour
+minute = weather_data.index.minute + 60
+hour_angle = 15 * ((hour + minute / 60) - 12)   # deg
+ω = hour_angle * np.pi / 180                    # rad   # Solar hour angle. négatif le matin, nul à midi, positif l'aprem 
+
+
+theta = np.sin(δ) * np.sin(ϕ) * np.cos(β) \
+    - np.sin(δ) * np.cos(ϕ) * np.sin(β) * np.cos(γ) \
+    + np.cos(δ) * np.cos(ϕ) * np.cos(β) * np.cos(ω) \
+    + np.cos(δ) * np.sin(ϕ) * np.sin(β) * np.cos(γ) * np.cos(ω) \
+    + np.cos(δ) * np.sin(β) * np.sin(γ) * np.sin(ω) # C'est l'angle d'incidence, l'angle entre la normal à la surface et le soleil 
+
+theta = np.array(np.arccos(theta))
+theta = np.minimum(theta, np.pi / 2)
+
+dir_rad = weather_data["dir_n_rad"] * np.cos(theta)
+dir_rad[dir_rad < 0] = 0
+
+
+
+        # Rayonnement diffus 
+dif_rad = weather_data["dif_h_rad"] * (1 + np.cos(β)) / 2
+
+
+        # Rayonnement solaire réfélchis par le sol 
+gamma = np.cos(δ) * np.cos(ϕ) * np.cos(ω) \
+    + np.sin(δ) * np.sin(ϕ)
+
+gamma = np.array(np.arcsin(gamma))
+gamma[gamma < 1e-5] = 1e-5
+
+dir_h_rad = weather_data["dir_n_rad"] * np.sin(gamma)
+
+ref_rad = (dir_h_rad + weather_data["dif_h_rad"]) * albedo \
+        * (1 - np.cos(β) / 2)
+        
+     # Rayonnement total 
+
+total = dir_rad + dif_rad + ref_rad 
+total.plot()
