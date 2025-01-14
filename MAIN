@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-#import dm4bem
+import dm4bem
 
 concrete = {'Conductivity': 1.400,          # W/(m·K)
             'Density': 2300.0,              # kg/m³
@@ -22,10 +22,10 @@ glass = {'Conductivity': 1.4,               # W/(m·K)
          'Width': 0.04,                     # m
          'Surface': l**2}                   # m²
 
-#out_wall = pd.DataFrame.from_dict({'Layer_out': concrete,
-#                               'Layer_in': insulation,
-#                               'Glass': glass},
-#                              orient='index')
+out_wall = pd.DataFrame.from_dict({'Layer_out': concrete,
+                               'Layer_in': insulation,
+                               'Glass': glass},
+                              orient='index')
 
 
 
