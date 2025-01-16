@@ -110,8 +110,9 @@ Kp = 0
 
 
 # glass: convection outdoor & conduction
-Ggs = float(1 / (1 / Gg.loc['h', 'out'] + 1 / (2 * G_cd['Glass'])))    #### Why x2 ? ####  
-
+G16 = float(  1 / (1 / Gg.loc['h', 'out'] + 1 / G_cd['Glass'] + 1 / Gg.loc['h', 'in'] )  )    #### Why x2 ? ####  
+G17 = float(  1 / (1 / Gg.loc['h', 'in'] + 1 / G_cd['Glass'] + 1 / Gg.loc['h', 'in'] )  )
+G18 = G16
 
 
 # Capacity
@@ -179,15 +180,17 @@ pd.DataFrame(A, index=q, columns=θ)
 
 G = np.array(np.hstack(
     [Gw['out'],
-     2 * G_cd['Layer_out'], 2 * G_cd['Layer_out'],
-     2 * G_cd['Layer_in'], 2 * G_cd['Layer_in'],
-     0,
-     Gw['in'],
-     Gg['in'],
-     Ggs,
-     2 * G_cd['Glass'],
-     Gv,
-     Kp]))
+     G_cd['Layer_out']/2, G_cd['Layer_out']/2,
+     G_cd['Layer_in']/2, G_cd['Layer_in']/2,
+     Gw['in'], Gw['in'],
+     G_cd['Layer_in']/2, G_cd['Layer_in']/2,
+     Gw['in'], Gw['in'],
+     G_cd['Layer_in']/2, G_cd['Layer_in']/2,
+     G_cd['Layer_out']/2, G_cd['Layer_out']/2,
+     Gw['out']
+     G16, G17, G18]
+     ))
+
 
 # np.set_printoptions(precision=3, threshold=16, suppress=True)
 # pd.set_option("display.precision", 1)
