@@ -3,19 +3,11 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-
 #import dm4bem
-
-l = 3               # m length of the cubic room
-
 
 air = {'Density': 1.2,                      # kg/m³
        'Specific heat': 1000,
-      'Volume':8*4*3}               # J/(kg·K)
-pd.DataFrame(air, index=['Air'])
-
-
-
+      'Volume':8*4*3}#on regarde le volume d'une seule pièce à la fois
 concrete = {'Conductivity': 1.400,          # W/(m·K)
             'Density': 2300.0,              # kg/m³
             'Specific heat': 880,           # J/(kg⋅K)
