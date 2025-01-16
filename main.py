@@ -219,9 +219,17 @@ pd.DataFrame(C, index=θ)
 b = pd.Series(['To', 0, 0, 0, 0, 0, 0, 0, 'To', 0, 'To', 'Ti_sp'],
               index=q)
 
-
-f = pd.Series(['Φo', 0, 0, 0, 'Φi', 0, 'Qa', 'Φa'],
-              index=θ)
+alpha_ext=0.5
+alpha_in=0.4
+tau=0.3
+phi_n=alpha_ext*EN*Surface["Nord"]
+phi_s=alpha_ext*ES*Surface["Sud"]
+phi_iN=tau*EN*S["Fenetre"]
+phi_iN1=alpha_in*phi_iN*(Surface["Nord"]/(Surface["Milieu"]+2*Surface["Lateral"]+Surface["Nord"]))
+phi_iN2=alpha_in*phi_iN*(Surface["Milieu"]/(Surface["Milieu"]+2*Surface["Lateral"]+Surface["Nord"]))
+phi_iS=tau*ES*Surface["Fenetre"]
+phi_iS1=alpha_in*phi_iS*(Surface["Sud"]/(2*Surface["Lateral"]+Surface["Milieu"]+Surface["Sud"]))
+f = pd.Series([phi_n, 0, 0, 0, phi_iN1, 0, phi_iN2, 0, phi_iS2, 0, phi_iS1, 0, 0, 0, phi_s], index=θ)
 
 y = np.zeros(8)         # nodes
 y[[6]] = 1              # nodes (temperatures) of interest
