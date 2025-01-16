@@ -1,3 +1,4 @@
+
             #Obtenir des Data
     # Télécharger et lire les data 
 import numpy as np
@@ -7,6 +8,7 @@ import matplotlib.pyplot as plt
 from dm4bem import read_epw, sol_rad_tilt_surf
 
 filename = './weather_data/FRA_Lyon.074810_IWEC.epw'
+
 
 
 [data, meta] = read_epw(filename, coerce_year=None)
@@ -65,7 +67,15 @@ plt.show()
 
 
             #Solar radiation on a tilted surface 
+
+
+rayonnement = {}
+
+
             #Façade SUD
+
+sud = {}
+
     # Orentiation de la surface 
     
 surface_orientation = {'slope': 90,     # 90° car la paroie est verticale 
@@ -86,12 +96,12 @@ plt.ylabel("Solar irradiance,  Φ / (W·m⁻²)")
 plt.show()
 
 #Pour ibtenir la valeur à un temps spécifique : 
-print(f"{rad_surf.loc['2000-06-29 12:00']['direct']:.0f} W/m²")
+#print(f"{rad_surf.loc['2000-06-29 12:00']['direct']:.0f} W/m²")
 
 #Pour avoir le max et le min, cad une valeur spécifique
-print(f"Mean. direct irradiation: {rad_surf['direct'].mean():.0f} W/m²")
-print(f"Max. direct irradiation:  {rad_surf['direct'].max():.0f} W/m²")
-print(f"Direct solar irradiance is maximum on {rad_surf['direct'].idxmax()}")
+#print(f"Mean. direct irradiation: {rad_surf['direct'].mean():.0f} W/m²")
+#print(f"Max. direct irradiation:  {rad_surf['direct'].max():.0f} W/m²")
+#print(f"Direct solar irradiance is maximum on {rad_surf['direct'].idxmax()}")
 
 
 
@@ -131,11 +141,13 @@ theta = np.minimum(theta, np.pi / 2)
 dir_rad = weather_data["dir_n_rad"] * np.cos(theta)
 dir_rad[dir_rad < 0] = 0
 
+sud['dir_rad'] = dir_rad
 
 
         # Rayonnement diffus 
 dif_rad = weather_data["dif_h_rad"] * (1 + np.cos(β)) / 2
 
+sud['dif_rad'] = dif_rad
 
         # Rayonnement solaire réfélchis par le sol 
 gamma = np.cos(δ) * np.cos(ϕ) * np.cos(ω) \
@@ -149,14 +161,23 @@ dir_h_rad = weather_data["dir_n_rad"] * np.sin(gamma)
 ref_rad = (dir_h_rad + weather_data["dif_h_rad"]) * albedo \
         * (1 - np.cos(β) / 2)
         
+        
+sud['ref_rad'] = ref_rad
+
      # Rayonnement total 
 
-ES = dir_rad + dif_rad + ref_rad 
-ES.plot()
+total = dir_rad + dif_rad + ref_rad 
+total.plot()
+
+sud['total'] = total
+
+rayonnement['sud']=sud
 
 
+            #Façade NORD 
+            
+nord = {}
 
-           #Façade NORD 
 surface_orientation = {'slope': 90,     # 90° car la paroie est verticale 
                        'azimuth': 180,    # 0° car on est orienté plein Nord
                        'latitude': 45.77}  # °
@@ -173,17 +194,17 @@ plt.xlabel("Time")
 plt.ylabel("Solar irradiance,  Φ / (W·m⁻²)")
 plt.show()
 
-#Pour ibtenir la valeur à un temps spécifique : 
-print(f"{rad_surf.loc['2000-06-29 12:00']['direct']:.0f} W/m²")
+#Pour obtenir la valeur à un temps spécifique : 
+#print(f"{rad_surf.loc['2000-06-29 12:00']['direct']:.0f} W/m²")
 
 #Pour avoir le max et le min, cad une valeur spécifique
-print(f"Mean. direct irradiation: {rad_surf['direct'].mean():.0f} W/m²")
-print(f"Max. direct irradiation:  {rad_surf['direct'].max():.0f} W/m²")
-print(f"Direct solar irradiance is maximum on {rad_surf['direct'].idxmax()}")
+#print(f"Mean. direct irradiation: {rad_surf['direct'].mean():.0f} W/m²")
+#print(f"Max. direct irradiation:  {rad_surf['direct'].max():.0f} W/m²")
+#print(f"Direct solar irradiance is maximum on {rad_surf['direct'].idxmax()}")
 
 
 
-            # Calculation of solar radiation on a tilted surface from weather data
+                # Calculation of solar radiation on a tilted surface from weather data
 
 β = surface_orientation['slope']
 γ = surface_orientation['azimuth']
@@ -219,11 +240,12 @@ theta = np.minimum(theta, np.pi / 2)
 dir_rad = weather_data["dir_n_rad"] * np.cos(theta)
 dir_rad[dir_rad < 0] = 0
 
-
+nord['dir_rad']=dir_rad
 
         # Rayonnement diffus 
 dif_rad = weather_data["dif_h_rad"] * (1 + np.cos(β)) / 2
 
+nord['dif_rad']=dif_rad
 
         # Rayonnement solaire réfélchis par le sol 
 gamma = np.cos(δ) * np.cos(ϕ) * np.cos(ω) \
@@ -236,8 +258,16 @@ dir_h_rad = weather_data["dir_n_rad"] * np.sin(gamma)
 
 ref_rad = (dir_h_rad + weather_data["dif_h_rad"]) * albedo \
         * (1 - np.cos(β) / 2)
-        
+
+nord['ref_rad']=ref_rad
+
      # Rayonnement total 
 
-EN = dir_rad + dif_rad + ref_rad 
-EN.plot()
+total = dir_rad + dif_rad + ref_rad 
+total.plot()
+
+nord['total']=total
+
+rayonnement['nord']=nord
+
+print(rayonnement)
