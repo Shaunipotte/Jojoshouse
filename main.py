@@ -73,21 +73,16 @@ Gg = h * wall['Surface'].iloc[2]     # glass
 
 # GLW = 1 / (1 / GLW1 + 1 / GLW12 + 1 / GLW2)
 
-
-#FACADE SUD
-ACH_S = 2                     # 1/h, air changes per hour
-Va_dotS = ACH_S / 3600 * air['Volume']    # m³/s, infiltration "instantanée"
-#ENTRE PIECES
-ACH_I = 2                    # 1/h, air changes per hour
-Va_dotI = ACH_I / 3600 * air['Volume']    # m³/s, infiltration "instantanée"
-#FACADE NORD
-ACH_N = 4                    # 1/h, air changes per hour
-Va_dotN = ACH_N / 3600 * air['Volume']    # m³/s, infiltration "instantanée"
-
-# ventilation & infiltration
-Gvent_S = air['Density'] * air['Specific heat'] * Va_dotS
-Gvent_I = air['Density'] * air['Specific heat'] * Va_dotI
-Gvent_N = air['Density'] * air['Specific heat'] * Va_dotN
+##G de des infiltrations d'air pour les différentes parois
+ACH = {'S': 2, 
+       'I': 2,
+      'N':4}
+Va_dot = {'S' = ACH['S'] / 3600 * air['Volume'],
+              'I' = ACH['I'] / 3600 * air['Volume'],
+              'N' = ACH['N'] / 3600 * air['Volume']}
+Gv = {'S' =  air['Density'] * air['Specific heat'] * Va_dot['S'],
+       'I' = air['Density'] * air['Specific heat'] * Va_dot['I'],
+       'N' = air['Density'] * air['Specific heat'] * Va_dot['N']}
 
 ##### P-controler gain ######
 # Kp = 1e4            # almost perfect controller Kp -> ∞
