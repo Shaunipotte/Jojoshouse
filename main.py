@@ -114,7 +114,7 @@ G18 = G16 - Gv['S'] + Gv['N'] #la seule différence entre les deux murs est cett
 C = wall['Density'] * wall['Specific heat'] * wall['Surface'] * wall['Width']
 pd.DataFrame(C, columns=['Capacity'])
 
-C['Air'] = air['Density'] * air['Specific heat'] * Va
+C['Air'] = air['Density'] * air['Specific heat'] * air['Volume']
 pd.DataFrame(C, columns=['Capacity'])
 
 
