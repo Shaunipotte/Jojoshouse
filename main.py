@@ -5,12 +5,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 #import dm4bem
 
-
-Longueur = 8 # longeur de l'appartement
+largeur = 4
+longueur = 8 # longeur de l'appartement
 hauteur = 3 # hateur des murs 
 
 air = {'Density': 1.2,                      # kg/m³
-       'Specific heat': 1000}               # J/(kg·K)
+       'Specific heat': 1000,
+       'Volume'=longeur*largeur*hauteur}               # J/(kg·K)
 pd.DataFrame(air, index=['Air'])
 
 
