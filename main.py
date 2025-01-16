@@ -107,10 +107,9 @@ Kp = 0
 # glass: convection outdoor & conduction
 Gglass16 = wall['Glass']['Surface'] / (1 /h['out'] + 1 / G_cd['Glass'] + 1 / h['in'] )
 Gporte16 = wall['Door']['Surface'] / (1 /h['out'] + 1 / G_cd['Door'] + 1 / h['in'] )
-Gglass17 = wall['Glass']['Surface'] / (1 /h['in'] + 1 / G_cd['Glass'] + 1 / h['in'] )
 Gporte17 = wall['Door']['Surface'] / (1 /h['in'] + 1 / G_cd['Door'] + 1 / h['in'] )
-G16 = float( Gv['S'] + Gglass16 + Gporte16 )  
-G17 = float( Gv['I'] + Gglass17 + Gporte17 )
+G16 = float( Gv['S'] + Gglass16 )  
+G17 = float( Gv['I'] + Gporte17 )
 G18 = float( Gv['N'] + Gglass16 + Gporte16 ) 
 
 
