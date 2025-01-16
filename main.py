@@ -167,6 +167,14 @@ A[17, 5]= 1
 A[17, 9]= -1
 A[16, 9]= 1
 
+#Matrice B avec T_ext à redéfinir
+T_ext = 13
+b = np.zeros([nq,1])
+b[0,0] = T_ext
+b[15,0] = T_ext
+b[16,0] = T_ext
+b[18,0] = T_ext
+
 pd.DataFrame(A, index=q, columns=θ)
 
 G = np.array(np.hstack(
