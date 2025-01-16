@@ -188,7 +188,7 @@ G = np.array(np.hstack(
      Gw['in'], Gw['in'],
      G_cd['Layer_in']/2, G_cd['Layer_in']/2,
      G_cd['Layer_out']/2, G_cd['Layer_out']/2,
-     Gw['out']
+     Gw['out'],
      G16, G17, G18]
      ))
 
