@@ -10,7 +10,8 @@ l = 3               # m length of the cubic room
 
 
 air = {'Density': 1.2,                      # kg/m³
-       'Specific heat': 1000}               # J/(kg·K)
+       'Specific heat': 1000,
+      'Volume':8*4*3}               # J/(kg·K)
 pd.DataFrame(air, index=['Air'])
 
 
@@ -43,24 +44,15 @@ wall = pd.DataFrame.from_dict({'Layer_out': concrete,
 α_gSW = 0.38    # short wave absortivity: reflective blue glass
 τ_gSW = 0.30    # short wave transmitance: reflective blue glass
 
-
-
 h = pd.DataFrame([{'in': 8., 'out': 25}], index=['h'])  # W/(m²⋅K)
-
-
 
 # conduction
 G_cd = wall['Conductivity'] / wall['Width'] * wall['Surface']
 pd.DataFrame(G_cd, columns=['Conductance'])
 
-
-
 # convection
 Gw = h * wall['Surface'].iloc[0]     # wall
 Gg = h * wall['Surface'].iloc[2]     # glass
-
-
-
 
 
 #### Radiation long ##### Négligé
@@ -90,18 +82,20 @@ Gg = h * wall['Surface'].iloc[2]     # glass
 # GLW = 1 / (1 / GLW1 + 1 / GLW12 + 1 / GLW2)
 
 
+#FACADE SUD
+ACH_S = 2                     # 1/h, air changes per hour
+Va_dotS = ACH_S / 3600 * air['Volume']    # m³/s, infiltration "instantanée"
+#ENTRE PIECES
+ACH_I = 2                    # 1/h, air changes per hour
+Va_dotI = ACH_I / 3600 * air['Volume']    # m³/s, infiltration "instantanée"
+#FACADE NORD
+ACH_N = 4                    # 1/h, air changes per hour
+Va_dotN = ACH_N / 3600 * air['Volume']    # m³/s, infiltration "instantanée"
 
-
-
-# ventilation flow rate
-Va = l**3                   # m³, volume of air
-ACH = 1                     # 1/h, air changes per hour ###### A modifier ######
-Va_dot = ACH / 3600 * Va    # m³/s, air infiltration
-
-# ventilation & advection
-Gv = air['Density'] * air['Specific heat'] * Va_dot
-
-
+# ventilation & infiltration
+Gvent_S = air['Density'] * air['Specific heat'] * Va_dotS
+Gvent_I = air['Density'] * air['Specific heat'] * Va_dotI
+Gvent_N = air['Density'] * air['Specific heat'] * Va_dotN
 
 ##### P-controler gain ######
 # Kp = 1e4            # almost perfect controller Kp -> ∞
