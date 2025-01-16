@@ -89,12 +89,12 @@ Gg = h * wall['Surface'].iloc[2]     # glass
 ACH = {'S': 2, 
        'I': 2,
       'N':4}
-Va_dot = {'S' = ACH['S'] / 3600 * air['Volume'],
-              'I' = ACH['I'] / 3600 * air['Volume'],
-              'N' = ACH['N'] / 3600 * air['Volume']}
-Gv = {'S' =  air['Density'] * air['Specific heat'] * Va_dot['S'],
-       'I' = air['Density'] * air['Specific heat'] * Va_dot['I'],
-       'N' = air['Density'] * air['Specific heat'] * Va_dot['N']}
+Va_dot = {'S' : ACH['S'] / 3600 * air['Volume'],
+              'I' : ACH['I'] / 3600 * air['Volume'],
+              'N' : ACH['N'] / 3600 * air['Volume']}
+Gv = {'S' :  air['Density'] * air['Specific heat'] * Va_dot['S'],
+       'I' : air['Density'] * air['Specific heat'] * Va_dot['I'],
+       'N' : air['Density'] * air['Specific heat'] * Va_dot['N']} 
 
 ##### P-controler gain ######
 # Kp = 1e4            # almost perfect controller Kp -> ∞
