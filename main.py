@@ -29,7 +29,8 @@ glass = {'Conductivity': 1.4,               # W/(m·K)
          'Density': 2500,                   # kg/m³
          'Specific heat': 1210,             # J/(kg⋅K)
          'Width': 0.04,                     # m
-         'Surface': l**2}                   # m²
+         'Surface': 2}                      # m²
+door = {'Surface' : 2}
 wall = pd.DataFrame.from_dict({'Layer_out': concrete,
                                'Layer_in': insulation,
                                'Glass': glass},
