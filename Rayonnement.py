@@ -151,8 +151,8 @@ ref_rad = (dir_h_rad + weather_data["dif_h_rad"]) * albedo \
         
      # Rayonnement total 
 
-total = dir_rad + dif_rad + ref_rad 
-total.plot()
+ES = dir_rad + dif_rad + ref_rad 
+ES.plot()
 
 
 
@@ -239,5 +239,5 @@ ref_rad = (dir_h_rad + weather_data["dif_h_rad"]) * albedo \
         
      # Rayonnement total 
 
-total = dir_rad + dif_rad + ref_rad 
-total.plot()
+EN = dir_rad + dif_rad + ref_rad 
+EN.plot()
