@@ -5,30 +5,42 @@ import pandas as pd
 import matplotlib.pyplot as plt
 #import dm4bem
 
+
+Longueur = 8 # longeur de l'appartement
+hauteur = 3 # hateur des murs 
+
 air = {'Density': 1.2,                      # kg/m³
-       'Specific heat': 1000,
-      'Volume':8*4*3}#on regarde le volume d'une seule pièce à la fois
+       'Specific heat': 1000}               # J/(kg·K)
+pd.DataFrame(air, index=['Air'])
+
+
 concrete = {'Conductivity': 1.400,          # W/(m·K)
             'Density': 2300.0,              # kg/m³
             'Specific heat': 880,           # J/(kg⋅K)
-            'Width': 0.2,                   # m
-            'Surface': 5 * l**2}            # m²
+            'Width': 0.2}                   # m
+     
 insulation = {'Conductivity': 0.027,        # W/(m·K)
               'Density': 55.0,              # kg/m³
               'Specific heat': 1210,        # J/(kg⋅K)
-              'Width': 0.08,                # m
-              'Surface': 5 * l**2}          # m²
+              'Width': 0.08}                # m
+
 glass = {'Conductivity': 1.4,               # W/(m·K)
          'Density': 2500,                   # kg/m³
          'Specific heat': 1210,             # J/(kg⋅K)
          'Width': 0.04,                     # m
-         'Surface': 2}                      # m²
-door = {'Surface' : 2}
+         'Surface': 2}                     # m²
+
+door = {'Surface' : 2}                     # m²
 wall = pd.DataFrame.from_dict({'Layer_out': concrete,
                                'Layer_in': insulation,
-                               'Glass': glass},
+                               'Glass': glass,
+                                'Door': door},
                               orient='index')
 
+Surface = {'Nord': Longueur*hauteur-door['Surface']-glass['Surface'],
+           'Sud': Longueur*hauteur-glass['Surface'],
+           'Milieu':Longueur*hauteur-door['Surface'],
+           'Lateral':Longueur/2*hauteur}
 
 
 # radiative properties (for the sun radiations)
