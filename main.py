@@ -11,7 +11,7 @@ hauteur = 3 # hateur des murs
 
 air = {'Density': 1.2,                      # kg/m³
        'Specific heat': 1000,
-       'Volume': longeur*largeur*hauteur}               # J/(kg·K)
+       'Volume': longueur*largeur*hauteur}               # J/(kg·K)
 pd.DataFrame(air, index=['Air'])
 
 
