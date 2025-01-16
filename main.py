@@ -38,10 +38,10 @@ wall = pd.DataFrame.from_dict({'Layer_out': concrete,
                                 'Door': door},
                               orient='index')
 
-Surface = {'Nord': Longueur*hauteur-door['Surface']-glass['Surface'],
-           'Sud': Longueur*hauteur-glass['Surface'],
-           'Milieu':Longueur*hauteur-door['Surface'],
-           'Lateral':Longueur/2*hauteur}
+Surface = {'Nord': longueur*hauteur-door['Surface']-glass['Surface'],
+           'Sud': longueur*hauteur-glass['Surface'],
+           'Milieu':longueur*hauteur-door['Surface'],
+           'Lateral':longueur/2*hauteur}
 
 
 # radiative properties (for the sun radiations)
