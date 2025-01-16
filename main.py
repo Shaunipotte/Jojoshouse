@@ -129,19 +129,18 @@ pd.DataFrame(C, columns=['Capacity'])
 
 ###### Mettre notre cas ######
 
-# temperature nodes
-θ = ['θ0', 'θ1', 'θ2', 'θ3', 'θ4', 'θ5', 'θ6', 'θ7']
+θ = ['θ0', 'θ1', 'θ2', 'θ3', 'θ4', 'θ5', 'θ6', 'θ7','θ8', 'θ9', 'θ10', 'θ11', 'θ12', 'θ13', 'θ14']
 
 # flow-rate branches
-q = ['q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11']
+q = ['q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11','q12', 'q13', 'q14', 'q15', 'q16', 'q17', 'q18']
 
 # temperature nodes
 nθ = len(θ)      # number of temperature nodes
-θ = [f'θ{i}' for i in range(nθ)]
+#θ = [f'θ{i}' for i in range(nθ)]
 
 # flow-rate branches
 nq = len(q)     # number of flow branches
-q = [f'q{i}' for i in range(nq)]
+#q = [f'q{i}' for i in range(nq)]
 
 
 A = np.zeros([nq, nθ])       # n° of branches X n° of nodes
@@ -151,12 +150,22 @@ A[2, 1], A[2, 2] = -1, 1    # branch 2: node 1 -> node 2
 A[3, 2], A[3, 3] = -1, 1    # branch 3: node 2 -> node 3
 A[4, 3], A[4, 4] = -1, 1    # branch 4: node 3 -> node 4
 A[5, 4], A[5, 5] = -1, 1    # branch 5: node 4 -> node 5
-A[6, 4], A[6, 6] = -1, 1    # branch 6: node 4 -> node 6
-A[7, 5], A[7, 6] = -1, 1    # branch 7: node 5 -> node 6
-A[8, 7] = 1                 # branch 8: -> node 7
-A[9, 5], A[9, 7] = 1, -1    # branch 9: node 5 -> node 7
-A[10, 6] = 1                # branch 10: -> node 6
-A[11, 6] = 1                # branch 11: -> node 6
+
+A[6, 5], A[6, 6] = 1, -1    # branch 6: node 5 -> node 6
+A[7, 6], A[7, 7] = 1, -1    # branch 7: node 6 -> node 7
+A[8, 7], A[8, 8] = 1, -1    # branch 8: node 7 -> node 8
+A[9, 8], A[9, 9] = 1, -1    # branch 9: node 8 -> node 9
+A[10, 9], A[10, 10] = 1, -1    # branch 10: node 9 -> node 10
+A[11, 10], A[11, 11] = 1, -1    # branch 11: node 10 -> node 11
+A[12, 11], A[12, 12] = 1, -1    # branch 12: node 11 -> node 12
+A[13, 12], A[13, 13] = 1, -1    # branch 13: node 12 -> node 13
+A[14, 13], A[14, 14] = 1, -1    # branch 14: node 13 -> node 14
+A[15, 14]= 1   # branch 15: node 14 -> node 15
+
+A[18, 5]= 1
+A[17, 5]= 1
+A[17, 9]= -1
+A[16, 9]= 1
 
 pd.DataFrame(A, index=q, columns=θ)
 
