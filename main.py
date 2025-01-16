@@ -104,9 +104,9 @@ Kp = 0
 
 
 # glass: convection outdoor & conduction
-G16 = float(  1 / (1 / Gg.loc['h', 'out'] + 1 / G_cd['Glass'] + 1 / Gg.loc['h', 'in'] )  )    #### Why x2 ? ####  
-G17 = float(  1 / (1 / Gg.loc['h', 'in'] + 1 / G_cd['Glass'] + 1 / Gg.loc['h', 'in'] )  )
-G18 = G16
+G16 = float( Gv['S'] + 1 / (1 / Gg.loc['h', 'out'] + 1 / G_cd['Glass'] + 1 / Gg.loc['h', 'in'] )  )    #### Why x2 ? ####  
+G17 = float( Gv['I'] + 1 / (1 / Gg.loc['h', 'in'] + 1 / G_cd['Glass'] + 1 / Gg.loc['h', 'in'] )  )
+G18 = G16 - Gv['S'] + Gv['N'] #la seule différence entre les deux murs est cette ventilation
 
 
 # Capacity
