@@ -32,7 +32,9 @@ glass = {'Conductivity': 1.4,               # W/(m·K)
          'Surface': 2,
          'Transmission': 0.8}                     # m²
 
-door = {'Surface' : 2}                     # m²
+door = {'Conductivity': 01,  
+        'Width': 0.04,  
+       'Surface' : 2}                     # m²
 wall = pd.DataFrame.from_dict({'Layer_out': concrete,
                                'Layer_in': insulation,
                                'Glass': glass,
@@ -53,12 +55,9 @@ Surface = {'Nord': longueur*hauteur-door['Surface']-glass['Surface'],
 h = pd.DataFrame([{'in': 8., 'out': 25}], index=['h'])  # W/(m²⋅K)
 
 # conduction
-G_cd = wall['Conductivity'] / wall['Width'] * wall['Surface']
+G_cd = wall['Conductivity'] / wall['Width']
 pd.DataFrame(G_cd, columns=['Conductance'])
 
-# convection
-Gw = h * wall['Surface'].iloc[0]     # wall
-Gg = h * wall['Surface'].iloc[2]     # glass
 
 
 #### Radiation long ##### Négligé
@@ -174,18 +173,28 @@ b[18,0] = T_ext
 
 pd.DataFrame(A, index=q, columns=θ)
 
-G = np.array(np.hstack(
-    [Gw['out'],
-     G_cd['Layer_out']/2, G_cd['Layer_out']/2,
-     G_cd['Layer_in']/2, G_cd['Layer_in']/2,
-     Gw['in'], Gw['in'],
-     G_cd['Layer_in']/2, G_cd['Layer_in']/2,
-     Gw['in'], Gw['in'],
-     G_cd['Layer_in']/2, G_cd['Layer_in']/2,
-     G_cd['Layer_out']/2, G_cd['Layer_out']/2,
-     Gw['out'],
-     G16, G17, G18]
-     ))
+
+G = np.zeros(nq, nq)
+
+G[0,0] = h['out']*Surface['Nord']
+G[1,1] = G_cd['Layer out']*Surface['Nord']/2
+G[2,2] = G[1,1]
+G[3,3] = G_cd['Layer in']*Surface['Nord']/2
+G[4,4] = G[3,3]
+G[5,5] = h['in']*Surface['Nord']
+G[6,6] = h['in']*Surface['Milieu']
+G[7,7] = G_cd['Layer in']*Surface['Milieu']/2
+G[8,8] = G[7,7]
+G[9,9] = h['in']*Surface['Milieu']
+G[10,10] = h['in']*Surface['Sud']
+G[11,11] = G_cd['Layer in']*Surface['Sud']/2
+G[12,12] = G[11,11]
+G[13,13] = G_cd['Layer out']*Surface['Sud']/2
+G[14,14] = G[13,13]
+G[15,15] = h['out']*Surface['Sud']
+G[16,16] = G16
+G[17,17] = G17
+G[18,18] = G18
 
 
 # np.set_printoptions(precision=3, threshold=16, suppress=True)
