@@ -1,4 +1,3 @@
-
             #Obtenir des Data
     # Télécharger et lire les data 
 import numpy as np
@@ -31,19 +30,21 @@ weather_data.index = weather_data.index.map(
     lambda t: t.replace(year=2000))
 
 #Pour lire les données à une date et heure précise : 
-weather_data.loc['2000-06-29 12:00']
+moment = '2000-06-29 12:00'
+weather_data.loc[moment]
 
     
     # Définition de la durée étudiée 
 
 # Define start and end dates
-start_date = '2000-06-29 12:00'
-end_date = '2000-07-02'         # time is 00:00 if not indicated
+start_date = moment
+end_date = moment      # time is 00:00 if not indicated
 
 # Filter the data based on the start and end dates
 weather_data = weather_data.loc[start_date:end_date]
 del data
 weather_data
+
 
 
     # Tracer de la température de l'air extérieure 
@@ -61,8 +62,6 @@ plt.xlabel("Time")
 plt.ylabel("Solar radiation, Φ / (W·m⁻²)")
 plt.legend(['$Φ_{direct}$', '$Φ_{diffuse}$'])
 plt.show()
-
-
 
 
 
@@ -104,7 +103,6 @@ plt.show()
 #print(f"Direct solar irradiance is maximum on {rad_surf['direct'].idxmax()}")
 
 
-
                 # Calculation of solar radiation on a tilted surface from weather data
 
 β = surface_orientation['slope']
@@ -141,13 +139,13 @@ theta = np.minimum(theta, np.pi / 2)
 dir_rad = weather_data["dir_n_rad"] * np.cos(theta)
 dir_rad[dir_rad < 0] = 0
 
-sud['dir_rad'] = dir_rad
+sud['dir_rad'] =  float(dir_rad.loc[moment])
 
 
         # Rayonnement diffus 
 dif_rad = weather_data["dif_h_rad"] * (1 + np.cos(β)) / 2
 
-sud['dif_rad'] = dif_rad
+sud['dif_rad'] = float(dif_rad.loc[moment])
 
         # Rayonnement solaire réfélchis par le sol 
 gamma = np.cos(δ) * np.cos(ϕ) * np.cos(ω) \
@@ -162,16 +160,18 @@ ref_rad = (dir_h_rad + weather_data["dif_h_rad"]) * albedo \
         * (1 - np.cos(β) / 2)
         
         
-sud['ref_rad'] = ref_rad
+sud['ref_rad'] = float(ref_rad.loc[moment])
 
      # Rayonnement total 
 
-total = dir_rad + dif_rad + ref_rad 
-total.plot()
+total = sud['dir_rad']+ sud['dif_rad']+ sud['ref_rad']
 
 sud['total'] = total
 
 rayonnement['sud']=sud
+
+
+
 
 
             #Façade NORD 
@@ -240,12 +240,15 @@ theta = np.minimum(theta, np.pi / 2)
 dir_rad = weather_data["dir_n_rad"] * np.cos(theta)
 dir_rad[dir_rad < 0] = 0
 
-nord['dir_rad']=dir_rad
+nord['dir_rad']=float(dir_rad.loc[moment])
+
+
+
 
         # Rayonnement diffus 
 dif_rad = weather_data["dif_h_rad"] * (1 + np.cos(β)) / 2
 
-nord['dif_rad']=dif_rad
+nord['dif_rad']=float(dif_rad.loc[moment])
 
         # Rayonnement solaire réfélchis par le sol 
 gamma = np.cos(δ) * np.cos(ϕ) * np.cos(ω) \
@@ -259,15 +262,18 @@ dir_h_rad = weather_data["dir_n_rad"] * np.sin(gamma)
 ref_rad = (dir_h_rad + weather_data["dif_h_rad"]) * albedo \
         * (1 - np.cos(β) / 2)
 
-nord['ref_rad']=ref_rad
+nord['ref_rad']=float(ref_rad.loc[moment])
+
 
      # Rayonnement total 
 
-total = dir_rad + dif_rad + ref_rad 
-total.plot()
+total = nord['dir_rad']+ nord['dif_rad'] + nord['ref_rad']
 
 nord['total']=total
 
 rayonnement['nord']=nord
 
+
+Text = float(weather_data.loc[moment, "temp_air"])
+print(Text)
 print(rayonnement)
