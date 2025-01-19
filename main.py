@@ -179,22 +179,22 @@ pd.DataFrame(A, index=q, columns=θ)
 
 G = np.zeros((nq, nq))
 
-G[0,0] = h['out']*Surface['Nord']
+G[0, 0] = h['out'].iloc[0] * Surface['Nord']
 G[1,1] = G_cd['Layer_out']*Surface['Nord']/2
 G[2,2] = G[1,1]
 G[3,3] = G_cd['Layer_in']*Surface['Nord']/2
 G[4,4] = G[3,3]
-G[5,5] = h['in']*Surface['Nord']
-G[6,6] = h['in']*Surface['Milieu']
+G[5, 5] = h['in'].iloc[0] * Surface['Nord']
+G[6, 6] = h['in'].iloc[0] * Surface['Milieu']
 G[7,7] = G_cd['Layer_in']*Surface['Milieu']/2
 G[8,8] = G[7,7]
-G[9,9] = h['in']*Surface['Milieu']
-G[10,10] = h['in']*Surface['Sud']
+G[9, 9] = h['in'].iloc[0] * Surface['Milieu']
+G[10, 10] = h['in'].iloc[0] * Surface['Sud']
 G[11,11] = G_cd['Layer_in']*Surface['Sud']/2
 G[12,12] = G[11,11]
 G[13,13] = G_cd['Layer_out']*Surface['Sud']/2
 G[14,14] = G[13,13]
-G[15,15] = h['out']*Surface['Sud']
+G[15, 15] = h['out'].iloc[0] * Surface['Sud']
 G[16,16] = G16
 G[17,17] = G17
 G[18,18] = G18
