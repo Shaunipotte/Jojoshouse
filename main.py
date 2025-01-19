@@ -105,12 +105,12 @@ Kp = 0
 
 
 # glass: convection outdoor & conduction
-Gglass16 = wall['Glass']['Surface'] / (1 /h['out'] + 1 / G_cd['Glass'] + 1 / h['in'] )
-Gporte16 = wall['Door']['Surface'] / (1 /h['out'] + 1 / G_cd['Door'] + 1 / h['in'] )
-Gporte17 = wall['Door']['Surface'] / (1 /h['in'] + 1 / G_cd['Door'] + 1 / h['in'] )
-G16 = float( Gv['S'] + Gglass16 )  
-G17 = float( Gv['I'] + Gporte17 )
-G18 = float( Gv['N'] + Gglass16 + Gporte16 ) 
+Gglass16 = wall.loc['Glass', 'Surface'] / (1 / h['out'] + 1 / G_cd['Glass'] + 1 / h['in'])
+Gporte16 = wall.loc['Door', 'Surface'] / (1 / h['out'] + 1 / G_cd['Door'] + 1 / h['in'])
+Gporte17 = wall.loc['Door', 'Surface'] / (1 / h['in'] + 1 / G_cd['Door'] + 1 / h['in'])
+G16 = float(Gv['S'] + Gglass16.iloc[0])
+G17 = float(Gv['I'] + Gporte17.iloc[0])
+G18 = float(Gv['N'] + Gglass16.iloc[0] + Gporte16.iloc[0])
 
 
 # Capacity
@@ -177,29 +177,29 @@ b[18,0] = T_ext
 pd.DataFrame(A, index=q, columns=θ)
 
 
-G = np.zeros(nq, nq)
+G = np.zeros((nq, nq))
 
 G[0,0] = h['out']*Surface['Nord']
-G[1,1] = G_cd['Layer out']*Surface['Nord']/2
+G[1,1] = G_cd['Layer_out']*Surface['Nord']/2
 G[2,2] = G[1,1]
-G[3,3] = G_cd['Layer in']*Surface['Nord']/2
+G[3,3] = G_cd['Layer_in']*Surface['Nord']/2
 G[4,4] = G[3,3]
 G[5,5] = h['in']*Surface['Nord']
 G[6,6] = h['in']*Surface['Milieu']
-G[7,7] = G_cd['Layer in']*Surface['Milieu']/2
+G[7,7] = G_cd['Layer_in']*Surface['Milieu']/2
 G[8,8] = G[7,7]
 G[9,9] = h['in']*Surface['Milieu']
 G[10,10] = h['in']*Surface['Sud']
-G[11,11] = G_cd['Layer in']*Surface['Sud']/2
+G[11,11] = G_cd['Layer_in']*Surface['Sud']/2
 G[12,12] = G[11,11]
-G[13,13] = G_cd['Layer out']*Surface['Sud']/2
+G[13,13] = G_cd['Layer_out']*Surface['Sud']/2
 G[14,14] = G[13,13]
 G[15,15] = h['out']*Surface['Sud']
 G[16,16] = G16
 G[17,17] = G17
 G[18,18] = G18
 
-
+#print(G) #pour vérifier G, la forme est bonne
 # np.set_printoptions(precision=3, threshold=16, suppress=True)
 # pd.set_option("display.precision", 1)
 pd.DataFrame(G, index=q)
