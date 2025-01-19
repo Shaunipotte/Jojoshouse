@@ -182,11 +182,21 @@ phi_iS2 = 1 #### faut définir ça pour la matrice f
 f = pd.Series([phi_n, 0, 0, 0, phi_iN1, 0, phi_iN2, 0, phi_iS2, 0, phi_iS1, 0, 0, 0, phi_s], index=θ)
 
 # Matrice C des capacités 'pour l'instant en statique non utile
-C = wall['Density'] * wall['Specific heat'] * wall['Surface'] * wall['Width']
-pd.DataFrame(C, columns=['Capacity'])
+# Compute capacities for walls
+C_walls = wall['Density'] * wall['Specific heat'] * wall['Surface'] * wall['Width'] / 2
+# Compute capacity for air
+C_air = air['Density'] * air['Specific heat'] * air['Volume']
 
-C['Air'] = air['Density'] * air['Specific heat'] * air['Volume']
-pd.DataFrame(C, columns=['Capacity'])
+# Initialize the C matrix (2D)
+C = np.zeros((nθ, nθ))
+# Assign non-zero capacities to specific diagonal elements
+C[1, 1] = C_walls.loc['Layer_out']
+C[3, 3] = C_walls.loc['Layer_in']
+C[7, 7] = C_walls.loc['Layer_in']
+C[11, 11] = C_walls.loc['Layer_out']
+C[13, 13] = C_walls.loc['Layer_out']
+C[5, 5] = C_air
+#print(C)
 
 # Matrice des températures
 y = np.zeros(len(θ))     # nodes and len(θ) = 15
