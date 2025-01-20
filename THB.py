@@ -216,5 +216,24 @@ G_np = G.to_numpy()
 ################ Résolution du cas statique ###############
 ###########################################################
 y = inv(-np.transpose(A) @ G @ A) @ (np.transpose(A) @ G @ b + f)
+# ou bien : np.linalg.inv(A.T @ G @ A) @ (A.T @ G @ b + f)
 
 print(y)
+
+###########################################################
+################ Résolution du cas Dynamique ############## proposition je pense pas que ça fonctionne vraiment
+###########################################################
+# State matrix
+As = -np.linalg.inv(C) @ A.T @ G @ A
+# pd.set_option('precision', 1)
+pd.DataFrame(As, index=θ, columns=θ)
+
+# Input matrix
+Bs = np.linalg.inv(C) @ np.block([A.T @ G, np.eye(nθ)])
+# pd.set_option('precision', 2)
+pd.DataFrame(Bs, index=θ, columns=q + θ)
+
+
+
+
+
