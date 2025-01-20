@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 #################################
 ########### Données #############
 #################################
-
+T_ext = 25.7  #dépend du fichier rayonnement
 largeur = 4     # largeur des pièces
 longueur = 8    # longueur de l'appartement
 hauteur = 3     # hauteur des murs 
@@ -64,12 +64,13 @@ h = pd.DataFrame([{'in': 8., 'out': 25}], index=['h'])
 # Kp = 1e4            # almost perfect controller Kp -> ∞
 # Kp = 1e-3           # no controller Kp -> 0
 Kp = 0
+
 #éclairement
 alpha_ext=0.5
 alpha_in=0.4
 tau=0.3
-EN = 100 ###éclairement nord à rédéfinir
-ES = 50 ###éclairement surd à rédéfinir
+EN = 406.649 ###éclairement nord à rédéfinir
+ES = 332.8795 ###éclairement surd à rédéfinir
 
 
 ########################################
@@ -223,13 +224,15 @@ print(y)
 ###########################################################
 ################ Résolution du cas Dynamique ############## proposition je pense pas que ça fonctionne vraiment
 ###########################################################
+C_inv = np.linalg.pinv(C) #matrice pseudo_inverse sinon pb de singulat matrix
+
 # State matrix
-As = -np.linalg.inv(C) @ A.T @ G @ A
+As = -C_inv @ A.T @ G @ A
 # pd.set_option('precision', 1)
 pd.DataFrame(As, index=θ, columns=θ)
 
 # Input matrix
-Bs = np.linalg.inv(C) @ np.block([A.T @ G, np.eye(nθ)])
+Bs = C_inv @ np.block([A.T @ G, np.eye(nθ)])
 # pd.set_option('precision', 2)
 pd.DataFrame(Bs, index=θ, columns=q + θ)
 
