@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 #dico_rayonnement, Text = (donnees(moment)) # récupération des données
 
 #en statique on prend la moyenne sur une journée, il devrait y avoir un moyen de faire ça avec le dico
-T_ext = 13
+T_ext = 25
 
 largeur = 4     # largeur des pièces
 longueur = 8    # longueur de l'appartement
@@ -71,11 +71,10 @@ h = pd.DataFrame([{'in': 8., 'out': 25}], index=['h'])
 #thermostat ######
 # Kp = 1e4            # almost perfect controller Kp -> ∞
 # Kp = 1e-3           # no controller Kp -> 0
-Kp = 0
-KpN = 0 #pièce nord
-KpS = 1e4 #pièce Sud
-#Tc = 18 #été
-Tc = 21 #hiver
+KpN = 1e-4 #pièce nord
+KpS = 1e3 #pièce Sud
+Tc = 18 #été
+#Tc = 21 #hiver
 
 ## flux utilisateur
 Qa = 80 #~80 par personne, ici c'est celui de la pièce Nord (four, télé, personnes)
@@ -256,13 +255,11 @@ print("f:", f.shape)
 ###############################################################################
 ###################### Résolution du circuit statique #########################
 ###############################################################################
-y = inv(-np.transpose(A) @ G @ A) @ (np.transpose(A) @ G @ b + f)
+y = inv(np.transpose(A) @ G @ A) @ (np.transpose(A) @ G @ b + f)
 # ou bien : np.linalg.inv(A.T @ G @ A) @ (A.T @ G @ b + f)
+print(y)
 y = pd.DataFrame(y, index=θ, columns=[1])
 
 #recerche des flux
 q = G @ (-(A @ y) + b)
-
-
-
-
+print(q)
