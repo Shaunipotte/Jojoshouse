@@ -45,7 +45,7 @@ glass = {'Conductivity': 1.4,               # W/(m·K)
          'Surface': 2,
          'Transmission': 0.8}                     # m²
 
-door = {'Conductivity': 1,  
+door = {'Conductivity': 0.1,  
         'Width': 0.04,  
        'Surface' : 2}                     # m²
 
@@ -63,10 +63,15 @@ wall = pd.DataFrame.from_dict({'Layer_in': concrete,
 
 # définition coeff convection 
 h = pd.DataFrame([{'in': 8., 'out': 25}], index=['h'])
+
 #thermostat ######
 # Kp = 1e4            # almost perfect controller Kp -> ∞
 # Kp = 1e-3           # no controller Kp -> 0
 Kp = 0
+KpN = 0 #pièce nord
+KpS = 1e4 #pièce Sud
+#Tc = 18 #été
+Tc = 21 #hiver
 
 #éclairement
 alpha_ext=0.5
@@ -82,13 +87,13 @@ ES = 332.8795 ###éclairement surd à rédéfinir
 #les noeuds
 θ = ['θ0', 'θ1', 'θ2', 'θ3', 'θ4', 'θ5', 'θ6', 'θ7','θ8', 'θ9', 'θ10', 'θ11', 'θ12', 'θ13', 'θ14']
 # flow-rate branches
-q = ['q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11','q12', 'q13', 'q14', 'q15', 'q16', 'q17', 'q18']
+q = ['q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11','q12', 'q13', 'q14', 'q15', 'q16', 'q17', 'q18', 'q19', 'q20']
 # temperature nodes
 nθ = len(θ)      # number of temperature nodes
-#θ = [f'θ{i}' for i in range(nθ)]
+#θ = [f'θ{i}' for i in range(nθ)] #autre méthode
 # flow-rate branches
 nq = len(q)     # number of flow branches
-#q = [f'q{i}' for i in range(nq)]
+#q = [f'q{i}' for i in range(nq)] #autre méthode
 
 #matrice A des flux
 A = np.zeros([nq, nθ])       # n° of branches X n° of nodes
@@ -115,6 +120,10 @@ A[17, 5]= 1
 A[17, 9]= -1
 A[16, 9]= 1
 
+#controler
+A[19,5] = 1
+A[20,9] = 1
+
 pd.DataFrame(A, index=q, columns=θ)
 
 # Matrice B avec T_ext à redéfinir
@@ -124,7 +133,8 @@ b[0,0] = T_ext
 b[15,0] = T_ext
 b[16,0] = T_ext
 b[18,0] = T_ext
-
+b[19,0] = Tc
+b[20,0] = Tc
 
 # Matrice G #
 # définiton conductance de conduction
@@ -171,10 +181,14 @@ G[15, 15] = h['out'].iloc[0] * Surface['Sud']
 G[16,16] = G16
 G[17,17] = G17
 G[18,18] = G18
+G[19,19] = KpN
+G[20,20] = KpS
 
 G = pd.DataFrame(G, index=q, columns=q) #### faut comprendre ça fait quoi ?
 
 # Matrice f des flux apportés
+f = np.zeros(nθ)
+
 phi_n=alpha_ext*EN*Surface["Nord"]
 phi_s=alpha_ext*ES*Surface["Sud"]
 phi_iN=tau*EN*glass["Surface"]
@@ -182,8 +196,17 @@ phi_iN1=alpha_in*phi_iN*(Surface["Nord"]/(Surface["Milieu"]+2*Surface["Lateral"]
 phi_iN2=alpha_in*phi_iN*(Surface["Milieu"]/(Surface["Milieu"]+2*Surface["Lateral"]+Surface["Nord"]))
 phi_iS=tau*ES*glass["Surface"]
 phi_iS1=alpha_in*phi_iS*(Surface["Sud"]/(2*Surface["Lateral"]+Surface["Milieu"]+Surface["Sud"]))
-phi_iS2 = 1 #### faut définir ça pour la matrice f
-f = pd.Series([phi_n, 0, 0, 0, phi_iN1, 0, phi_iN2, 0, phi_iS2, 0, phi_iS1, 0, 0, 0, phi_s], index=θ)
+phi_iS2 = alpha_in*phi_iS*(Surface["Milieu"]/(2*Surface["Lateral"]+Surface["Milieu"]+Surface["Sud"]))
+
+f[0] = phi_n
+f[4] = phi_iN1
+f[5] = Qa
+f[6] = phi_iN2
+f[8] = phi_iS2
+f[10] = phi_iS1
+f[10] = phi_s
+
+fs = pd.Series([phi_n, 0, 0, 0, phi_iN1, 0, phi_iN2, 0, phi_iS2, 0, phi_iS1, 0, 0, 0, phi_s], index=θ)
 
 # Matrice C des capacités 'pour l'instant en statique non utile
 # Compute capacities for walls
