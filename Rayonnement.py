@@ -283,4 +283,3 @@ def donnees(moment) :
     return (rayonnement, Text)
 
 moment = '2000-06-29 12:00'
-print(donnees(moment))
