@@ -267,7 +267,7 @@ plt.legend(["Températures en chaque point","Températures extérieures","Tempé
 
 y = pd.DataFrame(y, index=θ, columns=[1])
 
-
+# Pour moi le problème de q vient de la conversion de y en panda puisque qu'en printant y ici j'ai des NaN dans y
 
 #recerche des flux
 q = G @ (-(A @ y) + b)
