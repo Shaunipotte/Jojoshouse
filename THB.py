@@ -255,10 +255,19 @@ print("f:", f.shape)
 ###############################################################################
 ###################### Résolution du circuit statique #########################
 ###############################################################################
-y = inv(np.transpose(A) @ G @ A) @ (np.transpose(A) @ G @ b + f)
-# ou bien : np.linalg.inv(A.T @ G @ A) @ (A.T @ G @ b + f)
+y = inv(A.T @ G @ A) @ (A.T @ G @ b + f)
 print(y)
+
+plt.plot(y,'*b')
+plt.plot([0,14],[T_ext, T_ext],"*r")
+plt.plot([5,9],[Tc, Tc],"*g")
+plt.title("Du Nord au Sud ->")  ### title : "Température dans les 14 neouds définis dans le logement étudié"
+plt.ylabel("Température en °C")
+plt.legend(["Températures en chaque point","Températures extérieures","Températures visées par le controller"])
+
 y = pd.DataFrame(y, index=θ, columns=[1])
+
+
 
 #recerche des flux
 q = G @ (-(A @ y) + b)
