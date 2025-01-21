@@ -244,7 +244,10 @@ A = pd.DataFrame(A, index=q, columns=θ)
 G = pd.DataFrame(G, index=q, columns=q)
 
 G_np = G.to_numpy()
-
+print("A:", A.shape)
+print("G:", G.shape)
+print("b:", b.shape)
+print("f:", f.shape)
 
 ###########################################################
 ################ Résolution du cas statique ###############
