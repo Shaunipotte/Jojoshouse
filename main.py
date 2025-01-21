@@ -32,7 +32,7 @@ glass = {'Conductivity': 1.4,               # W/(m·K)
          'Surface': 2,
          'Transmission': 0.8}                     # m²
 
-door = {'Conductivity': 01,  
+door = {'Conductivity': 0.1,  
         'Width': 0.04,  
        'Surface' : 2}                     # m²
 wall = pd.DataFrame.from_dict({'Layer_out': concrete,
