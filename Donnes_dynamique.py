@@ -54,3 +54,43 @@ def donnees_dynamique(start_date,end_date) :
 
     
     return dico_dyn 
+
+
+def moyenne(start_date,end_date) :
+    ray_moyen = {}
+    dico = donnees_dynamique(start_date,end_date)
+    somme_dir_sud = 0
+    somme_dif_sud = 0
+    somme_ref_sud = 0
+    somme_dir_nord = 0
+    somme_dif_nord = 0
+    somme_ref_nord = 0
+    i = 0
+    for key, val in dico.items() :  
+        i = i+1
+        somme_dir_sud =  somme_dir_sud + val['sud']['dir_rad']
+        somme_dif_sud = somme_dif_sud + val['sud']['dif_rad']
+        somme_ref_sud = somme_ref_sud + val['sud']['ref_rad']
+        somme_dir_nord =  somme_dir_nord + val['nord']['dir_rad']
+        somme_dif_nord = somme_dif_nord + val['nord']['dif_rad']
+        somme_ref_nord = somme_ref_nord + val['nord']['ref_rad']
+        
+    total_sud = somme_dir_sud + somme_dif_sud + somme_ref_sud
+    sud = {}
+    sud['dir_rad'] = somme_dir_sud / i
+    sud['dif_rad'] = somme_dif_sud / i
+    sud['ref_rad'] = somme_ref_sud / i
+    sud['total'] = total_sud/i
+    ray_moyen['sud']=sud
+    
+    total_nord = somme_dir_nord + somme_dif_nord + somme_ref_nord
+    nord = {}
+    nord['dir_rad'] = somme_dir_nord / i
+    nord['dif_rad'] = somme_dif_nord / i
+    nord['ref_rad'] = somme_ref_nord / i
+    nord['total'] = total_nord/i
+    ray_moyen['nord']=nord
+        
+    return ray_moyen
+
+dico_moyen = moyenne(start_date,end_date)
