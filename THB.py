@@ -13,7 +13,9 @@ import matplotlib.pyplot as plt
 #################################
 ########### Données #############
 #################################
-T_ext = 25.7  #dépend du fichier rayonnement
+
+dico_rayonnement, Text = (donnees(moment)) # récupération des données
+
 largeur = 4     # largeur des pièces
 longueur = 8    # longueur de l'appartement
 hauteur = 3     # hauteur des murs 
