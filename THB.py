@@ -10,13 +10,14 @@ from numpy.linalg import inv
 import pandas as pd
 import matplotlib.pyplot as plt
 
-#################################
-########### Données #############
-#################################
+###############################################################################
+############################# Données #########################################
+###############################################################################
 
 #moment = '2000-06-29 12:00'
 #dico_rayonnement, Text = (donnees(moment)) # récupération des données
 
+#en statique on prend la moyenne sur une journée, il devrait y avoir un moyen de faire ça avec le dico
 T_ext = 13
 
 largeur = 4     # largeur des pièces
@@ -77,19 +78,19 @@ KpS = 1e4 #pièce Sud
 Tc = 21 #hiver
 
 ## flux utilisateur
-Qa = 0 #~80 par personne
+Qa = 80 #~80 par personne, ici c'est celui de la pièce Nord (four, télé, personnes)
 
 #éclairement
 alpha_ext=0.5
 alpha_in=0.4
 tau=0.3
-EN = 406.649 ###éclairement nord à rédéfinir
-ES = 332.8795 ###éclairement surd à rédéfinir
+EN = 332.8795 ###éclairement nord à rédéfinir
+ES = 406.649  ###éclairement surd à rédéfinir
 
 
-########################################
-####### le schéma général ##############
-########################################
+###############################################################################
+############################# Le schéma général ###############################
+###############################################################################
 #les noeuds
 θ = ['θ0', 'θ1', 'θ2', 'θ3', 'θ4', 'θ5', 'θ6', 'θ7','θ8', 'θ9', 'θ10', 'θ11', 'θ12', 'θ13', 'θ14']
 # flow-rate branches
@@ -101,7 +102,9 @@ nθ = len(θ)      # number of temperature nodes
 nq = len(q)     # number of flow branches
 #q = [f'q{i}' for i in range(nq)] #autre méthode
 
-#matrice A des flux
+
+########################### matrice A des flux #############################
+
 A = np.zeros([nq, nθ])       # n° of branches X n° of nodes
 A[0, 0] = 1                 # branch 0: -> node 0
 A[1, 0], A[1, 1] = -1, 1    # branch 1: node 0 -> node 1
@@ -121,6 +124,7 @@ A[13, 12], A[13, 13] = 1, -1    # branch 13: node 12 -> node 13
 A[14, 13], A[14, 14] = 1, -1    # branch 14: node 13 -> node 14
 A[15, 14]= 1   # branch 15: node 14 -> node 15
 
+# porte, fenetre, ventilation
 A[18, 5]= 1
 A[17, 5]= 1
 A[17, 9]= -1
@@ -130,9 +134,9 @@ A[16, 9]= 1
 A[19,5] = 1
 A[20,9] = 1
 
-pd.DataFrame(A, index=q, columns=θ)
+A = pd.DataFrame(A, index=q, columns=θ)
 
-# Matrice B avec T_ext définit à l'aide du code rayonnement
+############ Matrice B avec T_ext définit à l'aide du code rayonnement ########
 b = np.zeros([nq,1])
 b[0,0] = T_ext
 b[15,0] = T_ext
@@ -141,7 +145,10 @@ b[18,0] = T_ext
 b[19,0] = Tc
 b[20,0] = Tc
 
-# Matrice G #
+b = pd.DataFrame(b, index=q, columns=[1])
+
+#################################### Matrice G ################################
+
 # définiton conductance de conduction
 G_cd = wall['Conductivity'] / wall['Width']
 pd.DataFrame(G_cd, columns=['Conductance'])
@@ -155,6 +162,7 @@ Va_dot = {'S' : ACH['S'] / 3600 * air['Volume'],
 Gv = {'S' :  air['Density'] * air['Specific heat'] * Va_dot['S'],
        'I' : air['Density'] * air['Specific heat'] * Va_dot['I'],
        'N' : air['Density'] * air['Specific heat'] * Va_dot['N']} 
+
 #Gv['S'] = 0 ##ventilation nord vers Sud
 Gv['N'] = 0  ##ventilation Sud vers Nord
 
@@ -193,7 +201,7 @@ G[20,20] = KpS
 
 G = pd.DataFrame(G, index=q, columns=q) #### faut comprendre ça fait quoi ?
 
-# Matrice f des flux apportés
+########################## Matrice f des flux apportés ########################
 f = np.zeros((nθ,1))
 
 phi_n=alpha_ext*EN*Surface["Nord"]
@@ -211,11 +219,12 @@ f[5] = Qa
 f[6] = phi_iN2
 f[8] = phi_iS2
 f[10] = phi_iS1
-f[10] = phi_s
+f[14] = phi_s
 
-fs = pd.Series([phi_n, 0, 0, 0, phi_iN1, 0, phi_iN2, 0, phi_iS2, 0, phi_iS1, 0, 0, 0, phi_s], index=θ)
+f = pd.DataFrame(f, index=θ, columns=[1])
 
-# Matrice C des capacités 'pour l'instant en statique non utile
+############# Matrice C des capacités (en statique non utile) #################
+
 # Compute capacities for walls
 C_walls = wall['Density'] * wall['Specific heat'] * wall['Width']
 # Compute capacity for air
@@ -231,32 +240,28 @@ C[11, 11] = C_walls.loc['Layer_in']*Surface['Sud']
 C[13, 13] = C_walls.loc['Layer_out']*Surface['Sud']
 C[5, 5] = C_air #capacité des pièces
 C[9, 9] = C_air
-#print(C)
+
+C = pd.DataFrame(C, index=θ, columns=θ)
 
 # Matrice des températures
 y = np.zeros(len(θ))     # nodes and len(θ) = 15
-#y[[6]] = 1              # nodes (temperatures) of interest
 pd.DataFrame(y, index=θ)
 
-#on se retrouve avec ce circuit
-# thermal circuit
-A = pd.DataFrame(A, index=q, columns=θ)
-G = pd.DataFrame(G, index=q, columns=q)
-
-G_np = G.to_numpy()
+#on se retrouve avec ce circuit : thermal circuit
 print("A:", A.shape)
 print("G:", G.shape)
 print("b:", b.shape)
 print("f:", f.shape)
 
-###########################################################
-################ Résolution du cas statique ###############
-###########################################################
+###############################################################################
+###################### Résolution du circuit statique #########################
+###############################################################################
 y = inv(-np.transpose(A) @ G @ A) @ (np.transpose(A) @ G @ b + f)
 # ou bien : np.linalg.inv(A.T @ G @ A) @ (A.T @ G @ b + f)
+y = pd.DataFrame(y, index=θ, columns=[1])
 
-print(y)
-
+#recerche des flux
+q = G @ (-(A @ y) + b)
 
 
 
