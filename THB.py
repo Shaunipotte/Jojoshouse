@@ -132,8 +132,7 @@ A[20,9] = 1
 
 pd.DataFrame(A, index=q, columns=θ)
 
-# Matrice B avec T_ext à redéfinir
-T_ext = 13
+# Matrice B avec T_ext définit à l'aide du code rayonnement
 b = np.zeros([nq,1])
 b[0,0] = T_ext
 b[15,0] = T_ext
@@ -156,6 +155,8 @@ Va_dot = {'S' : ACH['S'] / 3600 * air['Volume'],
 Gv = {'S' :  air['Density'] * air['Specific heat'] * Va_dot['S'],
        'I' : air['Density'] * air['Specific heat'] * Va_dot['I'],
        'N' : air['Density'] * air['Specific heat'] * Va_dot['N']} 
+#Gv['S'] = 0 ##ventilation nord vers Sud
+Gv['N'] = 0  ##ventilation Sud vers Nord
 
 # glass: convection outdoor & conduction
 Gglass16 = wall.loc['Glass', 'Surface'] / (1 / h['out'] + 1 / G_cd['Glass'] + 1 / h['in'])
