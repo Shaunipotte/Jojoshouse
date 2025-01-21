@@ -194,7 +194,7 @@ G[20,20] = KpS
 G = pd.DataFrame(G, index=q, columns=q) #### faut comprendre ça fait quoi ?
 
 # Matrice f des flux apportés
-f = np.zeros(nθ)
+f = np.zeros((nθ,1))
 
 phi_n=alpha_ext*EN*Surface["Nord"]
 phi_s=alpha_ext*ES*Surface["Sud"]
