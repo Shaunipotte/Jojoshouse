@@ -14,8 +14,10 @@ import matplotlib.pyplot as plt
 ########### Données #############
 #################################
 
-# moment = '2000-06-29 12:00'
-dico_rayonnement, Text = (donnees(moment)) # récupération des données
+#moment = '2000-06-29 12:00'
+#dico_rayonnement, Text = (donnees(moment)) # récupération des données
+
+T_ext = 13
 
 largeur = 4     # largeur des pièces
 longueur = 8    # longueur de l'appartement
@@ -52,7 +54,8 @@ door = {'Conductivity': 0.1,
 Surface = {'Nord': longueur*hauteur-door['Surface']-glass['Surface'],
            'Sud': longueur*hauteur-glass['Surface'],
            'Milieu':longueur*hauteur-door['Surface'],
-           'Lateral':longueur/2*hauteur}
+           'Lateral':longueur/2*hauteur,
+          'Plafond' : longueur*largeur}
 
 ### création du panda mur
 wall = pd.DataFrame.from_dict({'Layer_in': concrete,
@@ -72,6 +75,9 @@ KpN = 0 #pièce nord
 KpS = 1e4 #pièce Sud
 #Tc = 18 #été
 Tc = 21 #hiver
+
+## flux utilisateur
+Qa = 0 #~80 par personne
 
 #éclairement
 alpha_ext=0.5
@@ -192,11 +198,11 @@ f = np.zeros(nθ)
 phi_n=alpha_ext*EN*Surface["Nord"]
 phi_s=alpha_ext*ES*Surface["Sud"]
 phi_iN=tau*EN*glass["Surface"]
-phi_iN1=alpha_in*phi_iN*(Surface["Nord"]/(Surface["Milieu"]+2*Surface["Lateral"]+Surface["Nord"]))
-phi_iN2=alpha_in*phi_iN*(Surface["Milieu"]/(Surface["Milieu"]+2*Surface["Lateral"]+Surface["Nord"]))
+phi_iN1=alpha_in*phi_iN*(Surface["Nord"]/(Surface["Milieu"]+2*Surface["Lateral"]+Surface["Nord"]+2*Surface["Plafond"]))
+phi_iN2=alpha_in*phi_iN*(Surface["Milieu"]/(Surface["Milieu"]+2*Surface["Lateral"]+Surface["Nord"]+2*Surface["Plafond"]))
 phi_iS=tau*ES*glass["Surface"]
-phi_iS1=alpha_in*phi_iS*(Surface["Sud"]/(2*Surface["Lateral"]+Surface["Milieu"]+Surface["Sud"]))
-phi_iS2 = alpha_in*phi_iS*(Surface["Milieu"]/(2*Surface["Lateral"]+Surface["Milieu"]+Surface["Sud"]))
+phi_iS1=alpha_in*phi_iS*(Surface["Sud"]/(2*Surface["Lateral"]+Surface["Milieu"]+Surface["Sud"]+2*Surface["Plafond"]))
+phi_iS2 = alpha_in*phi_iS*(Surface["Milieu"]/(2*Surface["Lateral"]+Surface["Milieu"]+Surface["Sud"]+2*Surface["Plafond"]))
 
 f[0] = phi_n
 f[4] = phi_iN1
