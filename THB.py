@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 ########### Données #############
 #################################
 
+# moment = '2000-06-29 12:00'
 dico_rayonnement, Text = (donnees(moment)) # récupération des données
 
 largeur = 4     # largeur des pièces
