@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from dm4bem import read_epw, sol_rad_tilt_surf
-from donnees_stat import donnees
+from Rayonnement import donnees
 
 
 start_date = '2000-06-29 12:00'
