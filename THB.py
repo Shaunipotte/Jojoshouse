@@ -257,21 +257,6 @@ y = inv(-np.transpose(A) @ G @ A) @ (np.transpose(A) @ G @ b + f)
 
 print(y)
 
-###########################################################
-################ Résolution du cas Dynamique ############## proposition je pense pas que ça fonctionne vraiment
-###########################################################
-C_inv = np.linalg.pinv(C) #matrice pseudo_inverse sinon pb de singulat matrix
-
-# State matrix
-As = -C_inv @ A.T @ G @ A
-# pd.set_option('precision', 1)
-pd.DataFrame(As, index=θ, columns=θ)
-
-# Input matrix
-Bs = C_inv @ np.block([A.T @ G, np.eye(nθ)])
-# pd.set_option('precision', 2)
-pd.DataFrame(Bs, index=θ, columns=q + θ)
-
 
 
 
