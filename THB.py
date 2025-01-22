@@ -9,15 +9,17 @@ import numpy as np
 from numpy.linalg import inv
 import pandas as pd
 import matplotlib.pyplot as plt
+from Donnes_dynamiques import moyenne
 
 ###############################################################################
 ############################# Données #########################################
 ###############################################################################
 
-#moment = '2000-06-29 12:00'
-#dico_rayonnement, Text = (donnees(moment)) # récupération des données
+start_date = '2000-06-29 12:00' # à changer seon la journée que l'on veut
+end_date = '2000-06-30 12:00'
 
 #en statique on prend la moyenne sur une journée, il devrait y avoir un moyen de faire ça avec le dico
+dico_moyen = moyenne(start_date,end_date)
 T_ext = 25
 
 largeur = 4     # largeur des pièces
