@@ -263,14 +263,17 @@ print(y)
 plt.plot(y,'*b')
 plt.plot([0,14],[T_ext, T_ext],"*r")
 plt.plot([5,9],[Tc, Tc],"*g")
-plt.title("Du Nord au Sud ->")  ### title : "Température dans les 14 neouds définis dans le logement étudié"
+plt.title("Température dans les 14 neouds définis dans le logement étudié")
+plt.xlabel("Du Nord au Sud ->") 
 plt.ylabel("Température en °C")
 plt.legend(["Températures en chaque point","Températures extérieures","Températures visées par le controller"])
 
-y = pd.DataFrame(y, index=θ, columns=[1])
+θ = range(15)
 
-# Pour moi le problème de q vient de la conversion de y en panda puisque qu'en printant y ici j'ai des NaN dans y
+ya = pd.DataFrame(y, index=θ, columns=[1])
+A = np.array(A)
+A = pd.DataFrame(A, index=q, columns=θ)
 
 #recerche des flux
-q = G @ (-(A @ y) + b)
+q = G @ (b-(A @ ya))
 print(q)
