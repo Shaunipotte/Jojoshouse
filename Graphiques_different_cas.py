@@ -15,13 +15,13 @@ start_date = '2000-12-21 00:00' # à changer seon la journée que l'on veut
 end_date = '2000-12-22 00:00'
 
 #en statique on prend la moyenne sur une journée, il devrait y avoir un moyen de faire ça avec le dico
-dico_moyen1, T_ext1 = moyenne(start_date,end_date)
+dico_moyen_hiver, T_ext_hiver = moyenne(start_date,end_date)
 
 start_date = '2000-06-21 00:00' # à changer seon la journée que l'on veut
 end_date = '2000-06-22 00:00'
 
 #en statique on prend la moyenne sur une journée, il devrait y avoir un moyen de faire ça avec le dico
-dico_moyen2, T_ext2 = moyenne(start_date,end_date)
+dico_moyen_ete, T_ext_ete = moyenne(start_date,end_date)
 
 
 
@@ -78,8 +78,8 @@ h = pd.DataFrame([{'in': 8., 'out': 25}], index=['h'])
 # Kp = 1e-3           # no controller Kp -> 0
 KpN = 1e-4 #pièce nord
 KpS = 1e3 #pièce Sud
-Tc1 = 22
-Tc2 = 18 
+Tc_hiver = 22
+Tc_ete = 18
 
 ## flux utilisateur
 Qa = 80 #~80 par personne, ici c'est celui de la pièce Nord (four, télé, personnes)
@@ -88,10 +88,10 @@ Qa = 80 #~80 par personne, ici c'est celui de la pièce Nord (four, télé, pers
 alpha_ext=0.5
 alpha_in=0.4
 tau=0.3
-EN1 = dico_moyen1['nord']['total'] ###éclairement nord à rédéfinir
-ES1 = dico_moyen1['sud']['total']  ###éclairement surd à rédéfinir
-EN2 = dico_moyen2['nord']['total'] ###éclairement nord à rédéfinir
-ES2 = dico_moyen2['sud']['total']  ###éclairement surd à rédéfinir
+EN_hiver = dico_moyen_hiver['nord']['total'] ###éclairement nord à rédéfinir
+ES_hiver = dico_moyen_hiver['sud']['total']  ###éclairement surd à rédéfinir
+EN_ete = dico_moyen_ete['nord']['total'] ###éclairement nord à rédéfinir
+ES_ete = dico_moyen_ete['sud']['total']  ###éclairement surd à rédéfinir
 
 
 ###############################################################################
@@ -143,27 +143,27 @@ A[20,9] = 1
 A = pd.DataFrame(A, index=q, columns=θ)
 
 ############ Matrice B avec T_ext définit à l'aide du code rayonnement ########
-b1 = np.zeros([nq,1])
-b1[0,0] = T_ext1
-b1[15,0] = T_ext1
-b1[16,0] = T_ext1
-b1[18,0] = T_ext1
-b1[19,0] = Tc1
-b1[20,0] = Tc1
+b_hiver = np.zeros([nq,1])
+b_hiver[0,0] = T_ext_hiver
+b_hiver[15,0] = T_ext_hiver
+b_hiver[16,0] = T_ext_hiver
+b_hiver[18,0] = T_ext_hiver
+b_hiver[19,0] = Tc_hiver
+b_hiver[20,0] = Tc_hiver
 
-b1 = pd.DataFrame(b1, index=q, columns=[1])
+b_hiver = pd.DataFrame(b_hiver, index=q, columns=[1])
 
 
 
-b2 = np.zeros([nq,1])
-b2[0,0] = T_ext2
-b2[15,0] = T_ext2
-b2[16,0] = T_ext2
-b2[18,0] = T_ext2
-b2[19,0] = Tc2
-b2[20,0] = Tc2
+b_ete = np.zeros([nq,1])
+b_ete[0,0] = T_ext_ete
+b_ete[15,0] = T_ext_ete
+b_ete[16,0] = T_ext_ete
+b_ete[18,0] = T_ext_ete
+b_ete[19,0] = Tc_ete
+b_ete[20,0] = Tc_ete
 
-b2 = pd.DataFrame(b2, index=q, columns=[1])
+b_ete = pd.DataFrame(b_ete, index=q, columns=[1])
 
 #################################### Matrice G ################################
 
@@ -220,48 +220,48 @@ G[20,20] = KpS
 G = pd.DataFrame(G, index=q, columns=q) #### faut comprendre ça fait quoi ?
 
 ########################## Matrice f des flux apportés ########################
-f1 = np.zeros((nθ,1))
+f_hiver = np.zeros((nθ,1))
 
-phi_n=alpha_ext*EN1*Surface["Nord"]
-phi_s=alpha_ext*ES1*Surface["Sud"]
-phi_iN=tau*EN1*glass["Surface"]
+phi_n=alpha_ext*EN_hiver*Surface["Nord"]
+phi_s=alpha_ext*ES_hiver*Surface["Sud"]
+phi_iN=tau*EN_hiver*glass["Surface"]
 phi_iN1=alpha_in*phi_iN*(Surface["Nord"]/(Surface["Milieu"]+2*Surface["Lateral"]+Surface["Nord"]+2*Surface["Plafond"]))
 phi_iN2=alpha_in*phi_iN*(Surface["Milieu"]/(Surface["Milieu"]+2*Surface["Lateral"]+Surface["Nord"]+2*Surface["Plafond"]))
-phi_iS=tau*ES1*glass["Surface"]
+phi_iS=tau*ES_hiver*glass["Surface"]
 phi_iS1=alpha_in*phi_iS*(Surface["Sud"]/(2*Surface["Lateral"]+Surface["Milieu"]+Surface["Sud"]+2*Surface["Plafond"]))
 phi_iS2 = alpha_in*phi_iS*(Surface["Milieu"]/(2*Surface["Lateral"]+Surface["Milieu"]+Surface["Sud"]+2*Surface["Plafond"]))
 
-f1[0] = phi_n
-f1[4] = phi_iN1
-f1[5] = Qa
-f1[6] = phi_iN2
-f1[8] = phi_iS2
-f1[10] = phi_iS1
-f1[14] = phi_s
+f_hiver[0] = phi_n
+f_hiver[4] = phi_iN1
+f_hiver[5] = Qa
+f_hiver[6] = phi_iN2
+f_hiver[8] = phi_iS2
+f_hiver[10] = phi_iS1
+f_hiver[14] = phi_s
 
-f1 = pd.DataFrame(f1, index=θ, columns=[1])
+f_hiver = pd.DataFrame(f_hiver, index=θ, columns=[1])
 
 
-f2 = np.zeros((nθ,1))
+f_ete = np.zeros((nθ,1))
 
-phi_n=alpha_ext*EN2*Surface["Nord"]
-phi_s=alpha_ext*ES2*Surface["Sud"]
-phi_iN=tau*EN2*glass["Surface"]
+phi_n=alpha_ext*EN_ete*Surface["Nord"]
+phi_s=alpha_ext*ES_ete*Surface["Sud"]
+phi_iN=tau*EN_ete*glass["Surface"]
 phi_iN1=alpha_in*phi_iN*(Surface["Nord"]/(Surface["Milieu"]+2*Surface["Lateral"]+Surface["Nord"]+2*Surface["Plafond"]))
 phi_iN2=alpha_in*phi_iN*(Surface["Milieu"]/(Surface["Milieu"]+2*Surface["Lateral"]+Surface["Nord"]+2*Surface["Plafond"]))
-phi_iS=tau*ES2*glass["Surface"]
+phi_iS=tau*ES_ete*glass["Surface"]
 phi_iS1=alpha_in*phi_iS*(Surface["Sud"]/(2*Surface["Lateral"]+Surface["Milieu"]+Surface["Sud"]+2*Surface["Plafond"]))
 phi_iS2 = alpha_in*phi_iS*(Surface["Milieu"]/(2*Surface["Lateral"]+Surface["Milieu"]+Surface["Sud"]+2*Surface["Plafond"]))
 
-f2[0] = phi_n
-f2[4] = phi_iN1
-f2[5] = Qa
-f2[6] = phi_iN2
-f2[8] = phi_iS2
-f2[10] = phi_iS1
-f2[14] = phi_s
+f_ete[0] = phi_n
+f_ete[4] = phi_iN1
+f_ete[5] = Qa
+f_ete[6] = phi_iN2
+f_ete[8] = phi_iS2
+f_ete[10] = phi_iS1
+f_ete[14] = phi_s
 
-f2 = pd.DataFrame(f2, index=θ, columns=[1])
+f_ete = pd.DataFrame(f_ete, index=θ, columns=[1])
 
 ############# Matrice C des capacités (en statique non utile) #################
 
@@ -290,35 +290,36 @@ pd.DataFrame(y, index=θ)
 #on se retrouve avec ce circuit : thermal circuit
 print("A:", A.shape)
 print("G:", G.shape)
-print("b:", b1.shape)
-print("f:", f1.shape)
+print("b:", b_ete.shape)
+print("f:", f_ete.shape)
 
 ###############################################################################
 ###################### Résolution du circuit statique #########################
 ###############################################################################
-y1 = inv(A.T @ G @ A) @ (A.T @ G @ b1 + f1)
-y2 = inv(A.T @ G @ A) @ (A.T @ G @ b2 + f2)
-print(y1)
+y_hiver = inv(A.T @ G @ A) @ (A.T @ G @ b_hiver + f_hiver)
+y_ete = inv(A.T @ G @ A) @ (A.T @ G @ b_ete + f_ete)
+print(y_ete)
 
-plt.plot(y1,'-b')
-plt.plot([0,14],[T_ext1, T_ext1],"*c")
-plt.plot([5,9],[Tc1, Tc1],"*g")
+plt.plot(y_hiver,'-b')
+plt.plot([0,14],[T_ext_hiver, T_ext_hiver],"*c")
+plt.plot([5,9],[Tc_hiver, Tc_hiver],"*g")
 
-plt.plot(y2, '-r')
-plt.plot([0,14],[T_ext2, T_ext2], color = 'pink', marker = '*', linestyle = 'None')
-plt.plot([5,9],[Tc2, Tc2], color = 'orange', marker = '*', linestyle = 'None')
+plt.plot(y_ete, '-r')
+plt.plot([0,14],[T_ext_ete, T_ext_ete], color = 'pink', marker = '*', linestyle = 'None')
+plt.plot([5,9],[Tc_ete, Tc_ete], color = 'orange', marker = '*', linestyle = 'None')
 
 plt.title("Température dans les 14 noeuds définis dans le logement étudié")
 plt.xlabel("Du Nord au Sud ->") 
 plt.ylabel("Température en °C")
 plt.legend(["Températures en chaque point en hiver","Températures extérieures en hiver","Températures visées par le controller en hiver","Températures en chaque point en été","Températures extérieures en été","Températures visées par le controller en été"])
 
+
+#recerche des flux
 θ = range(15)
 
-ya = pd.DataFrame(y1, index=θ, columns=[1])
+y = pd.DataFrame(y_hiver, index=θ, columns=[1])
 A = np.array(A)
 A = pd.DataFrame(A, index=q, columns=θ)
 
-#recerche des flux
-q = G @ (b1-(A @ ya))
+q = G @ (b_hiver - (A @ y))
 print(q)
