@@ -10,7 +10,7 @@ from numpy.linalg import inv
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from dm4bem import read_epw, sol_rad_tilt_surf, tc2ss
+from dm4bem import read_epw, sol_rad_tilt_surf, tc2ss, inputs_in_time
 from Donnes_dynamiques import donnees_dynamique
 
 ###############################################################################
@@ -147,15 +147,15 @@ A[20,9] = 1
 A = pd.DataFrame(A, index=q, columns=θ)
 
 ############ Matrice B avec T_ext définit à l'aide du code rayonnement ########
-b = np.zeros([nq,1])
-b[0,0] = T_ext
-b[15,0] = T_ext
-b[16,0] = T_ext
-b[18,0] = T_ext
-b[19,0] = Tc
-b[20,0] = Tc
+b = np.zeros([nq])
+b[0] = T_ext
+b[15] = T_ext
+b[16] = T_ext
+b[18] = T_ext
+b[19] = Tc
+b[20] = Tc
 
-b = pd.DataFrame(b, index=q, columns=[1])
+b = pd.Series(b, index=q)
 
 #################################### Matrice G ################################
 
@@ -185,34 +185,33 @@ G17 = float(Gv['I'] + Gporte17.iloc[0])
 G18 = float(Gv['N'] + Gglass16.iloc[0] + Gporte16.iloc[0])
 
 ## remplissage de G
-G = np.zeros((nq, nq))
+GN = np.array(np.hstack([h['out'].iloc[0] * Surface['Nord'], 
+      G_cd['Layer_out']*Surface['Nord']/2,
+      G_cd['Layer_out']*Surface['Nord']/2,
+      G_cd['Layer_in']*Surface['Nord']/2,
+      G_cd['Layer_in']*Surface['Nord']/2,
+      h['in'].iloc[0] * Surface['Nord']]))
 
-G[0, 0] = h['out'].iloc[0] * Surface['Nord']
-G[1,1] = G_cd['Layer_out']*Surface['Nord']/2
-G[2,2] = G[1,1]
-G[3,3] = G_cd['Layer_in']*Surface['Nord']/2
-G[4,4] = G[3,3]
-G[5, 5] = h['in'].iloc[0] * Surface['Nord']
-G[6, 6] = h['in'].iloc[0] * Surface['Milieu']
-G[7,7] = G_cd['Layer_in']*Surface['Milieu']/2
-G[8,8] = G[7,7]
-G[9, 9] = h['in'].iloc[0] * Surface['Milieu']
-G[10, 10] = h['in'].iloc[0] * Surface['Sud']
-G[11,11] = G_cd['Layer_in']*Surface['Sud']/2
-G[12,12] = G[11,11]
-G[13,13] = G_cd['Layer_out']*Surface['Sud']/2
-G[14,14] = G[13,13]
-G[15, 15] = h['out'].iloc[0] * Surface['Sud']
-G[16,16] = G16
-G[17,17] = G17
-G[18,18] = G18
-G[19,19] = KpN
-G[20,20] = KpS
+GM = np.array((h['in'].iloc[0] * Surface['Milieu'],
+      G_cd['Layer_in']*Surface['Milieu']/2,
+      G_cd['Layer_in']*Surface['Milieu']/2,
+      h['in'].iloc[0] * Surface['Milieu']))
 
-G = pd.DataFrame(G, index=q, columns=q) #### faut comprendre ça fait quoi ?
+GS = np.array((h['in'].iloc[0] * Surface['Sud'],
+      G_cd['Layer_in']*Surface['Sud']/2,
+      G_cd['Layer_in']*Surface['Sud']/2,
+      G_cd['Layer_out']*Surface['Sud']/2,
+      G_cd['Layer_out']*Surface['Sud']/2,
+      h['out'].iloc[0] * Surface['Sud']))
+
+GP = np.array((G16, G17, G18))
+GC = np.array((KpN, KpS))
+
+G = np.array(np.hstack((GN, GM, GS, GP, GC)))
+G = pd.DataFrame(G, index=q)
 
 ########################## Matrice f des flux apportés ########################
-f = np.zeros((nθ,1))
+f = np.zeros([nθ])
 
 phi_n=alpha_ext*EN*Surface["Nord"]
 phi_s=alpha_ext*ES*Surface["Sud"]
@@ -231,7 +230,7 @@ f[8] = phi_iS2
 f[10] = phi_iS1
 f[14] = phi_s
 
-f = pd.DataFrame(f, index=θ, columns=[1])
+f = pd.Series(f, index=θ)
 
 ############# Matrice C des capacités (en statique non utile) #################
 
@@ -240,18 +239,26 @@ C_walls = wall['Density'] * wall['Specific heat'] * wall['Width']
 # Compute capacity for air
 C_air = air['Density'] * air['Specific heat'] * air['Volume']
 
-# Initialize the C matrix (2D)
-C = np.zeros((nθ, nθ))
 # Assign non-zero capacities to specific diagonal elements
-C[1, 1] = C_walls.loc['Layer_out']*Surface['Nord'] #isolant Nord
-C[3, 3] = C_walls.loc['Layer_in']*Surface['Nord'] #béton nord
-C[7, 7] = C_walls.loc['Layer_in']*Surface['Milieu']
-C[11, 11] = C_walls.loc['Layer_in']*Surface['Sud']
-C[13, 13] = C_walls.loc['Layer_out']*Surface['Sud']
-C[5, 5] = C_air #capacité des pièces
-C[9, 9] = C_air
+CN = np.array(np.hstack([0,
+                         C_walls.loc['Layer_out']*Surface['Nord'],
+                         0,
+                         C_walls.loc['Layer_in']*Surface['Nord'],
+                         0,
+                         C_air]))
+CM = np.array(np.hstack([0,
+                         C_walls.loc['Layer_in']*Surface['Milieu'], 
+                         0,
+                         C_air]))
+CS = np.array(np.hstack([0,
+                         C_walls.loc['Layer_in']*Surface['Sud'],
+                         0,
+                         C_walls.loc['Layer_out']*Surface['Sud'],
+                         0]))
 
-C = pd.DataFrame(C, index=θ, columns=θ)
+
+C = np.array(np.hstack((CN, CM, CS)))
+C = pd.DataFrame(C, index=θ)
 
 # Matrice des températures
 y = np.zeros(len(θ))     # nodes and len(θ) = 15
@@ -262,6 +269,12 @@ y = pd.DataFrame(y, index=θ, columns=[1])
 ###############################################################################
 
 # thermal circuit
+A = pd.DataFrame(A, index=q, columns=θ)
+G = pd.DataFrame(G, index=q)
+C = pd.DataFrame(C, index=θ)
+b = pd.Series(b, index=q)
+f = pd.Series(f, index=θ)
+y = pd.Series(y, index=θ)
 TC = {"A": A,
       "G": G,
       "C": C,
@@ -278,6 +291,27 @@ print("y:", y.shape)
 
 ## système  DAE : utliser dm4bem
 [As, Bs, Cs, Ds, us] = tc2ss(TC)
+
+########################## discretisation #######################################
+#définition du pas de temps
+dt = 500
+n = int(np.floor(duration / dt))    # number of time steps
+
+u = inputs_in_time(us, input_data_set)
+# Initial conditions
+θ_exp = pd.DataFrame(index=u.index)     # empty df with index for explicit Euler
+θ_imp = pd.DataFrame(index=u.index)     # empty df with index for implicit Euler
+
+θ0 = 0.0                    # initial temperatures
+θ_exp[As.columns] = θ0      # fill θ for Euler explicit with initial values θ0
+θ_imp[As.columns] = θ0      # fill θ for Euler implicit with initial values θ0
+
+I = np.eye(As.shape[0])     # identity matrix
+for k in range(u.shape[0] - 1):
+    θ_exp.iloc[k + 1] = (I + dt * As)\
+        @ θ_exp.iloc[k] + dt * Bs @ u.iloc[k]
+    θ_imp.iloc[k + 1] = np.linalg.inv(I - dt * As)\
+        @ (θ_imp.iloc[k] + dt * Bs @ u.iloc[k])
 
 
 
