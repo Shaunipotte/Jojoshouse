@@ -93,4 +93,4 @@ def moyenne(start_date,end_date) :
         
     return ray_moyen
 
-dico_moyen = moyenne(start_date,end_date)
+#dico_moyen = moyenne(start_date,end_date)
