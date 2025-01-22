@@ -48,17 +48,18 @@ def donnees_dynamique(start_date,end_date) :
 
     
     dico_dyn = {}
+    Text = {}
     for val in valeur :
-        dico,Text = donnees(str(val))
+        dico,Tpt = donnees(str(val))
         dico_dyn[str(val)] = dico
-
-    
-    return dico_dyn 
+        Text[str(val)] = Tpt
+    return dico_dyn, Text
 
 
 def moyenne(start_date,end_date) :
     ray_moyen = {}
-    dico = donnees_dynamique(start_date,end_date)
+    dico, Text = donnees_dynamique(start_date,end_date)
+    sommeT = 0
     somme_dir_sud = 0
     somme_dif_sud = 0
     somme_ref_sud = 0
@@ -74,6 +75,7 @@ def moyenne(start_date,end_date) :
         somme_dir_nord =  somme_dir_nord + val['nord']['dir_rad']
         somme_dif_nord = somme_dif_nord + val['nord']['dif_rad']
         somme_ref_nord = somme_ref_nord + val['nord']['ref_rad']
+        sommeT = sommeT + Text[key]
         
     total_sud = somme_dir_sud + somme_dif_sud + somme_ref_sud
     sud = {}
@@ -90,7 +92,9 @@ def moyenne(start_date,end_date) :
     nord['ref_rad'] = somme_ref_nord / i
     nord['total'] = total_nord/i
     ray_moyen['nord']=nord
+    
+    Tpt_ext = sommeT/i
         
-    return ray_moyen
+    return ray_moyen, Tpt_ext
 
-#dico_moyen = moyenne(start_date,end_date)
+#dico_moyen, Text = moyenne(start_date,end_date)
