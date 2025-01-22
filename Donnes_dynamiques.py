@@ -7,8 +7,8 @@ from dm4bem import read_epw, sol_rad_tilt_surf
 from Rayonnement import donnees
 
 
-start_date = '2000-06-29 12:00'
-end_date = '2000-06-30 12:00'
+#start_date = '2000-06-29 12:00'
+#end_date = '2000-06-30 12:00'
 
 
 def donnees_dynamique(start_date,end_date) : 
