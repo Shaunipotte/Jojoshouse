@@ -11,6 +11,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from dm4bem import read_epw, sol_rad_tilt_surf, tc2ss, inputs_in_time
+from dm4bem import *
 from Donnes_dynamiques import donnees_dynamique
 
 ###############################################################################
@@ -294,7 +295,20 @@ print("y:", y.shape)
 
 ########################## discretisation #######################################
 #définition du pas de temps
-dt = 500
+#définition du pas de temps
+λ = np.linalg.eig(As)[0]        # eigenvalues of matrix As
+dtmax = 2 * min(-1. / λ)        #pas de temps max
+print_rounded_time('Δtmax', dtmax) 
+dt = 180
+
+# settling time
+t_f = 4 * max(-1 / λ)
+print_rounded_time('t_settle', t_f) 
+
+# duration: next multiple of 3600 s that is larger than t_settle
+duration = np.ceil(t_f / 3600) * 3600
+print_rounded_time('duration', duration)
+
 n = int(np.floor(duration / dt))    # number of time steps
 
 u = inputs_in_time(us, input_data_set)
@@ -312,7 +326,6 @@ for k in range(u.shape[0] - 1):
         @ θ_exp.iloc[k] + dt * Bs @ u.iloc[k]
     θ_imp.iloc[k + 1] = np.linalg.inv(I - dt * As)\
         @ (θ_imp.iloc[k] + dt * Bs @ u.iloc[k])
-
 
 
 
