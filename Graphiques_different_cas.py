@@ -1,5 +1,9 @@
 # # -*- coding: utf-8 -*-
 
+
+################## Ici Cas 0 par défaut (le seul du doc) #################
+
+
 # ### les import
 import numpy as np
 from numpy.linalg import inv
