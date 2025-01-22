@@ -168,7 +168,7 @@ Gv = {'S' :  air['Density'] * air['Specific heat'] * Va_dot['S'],
 Gv['N'] = 0  ##ventilation Sud vers Nord
 
 # glass: convection outdoor & conduction
-Gglass16 = wall.loc['Glass', 'Surface'] / (1 / h['out'] + 1 / G_cd['Glass'] + 1 / h['in'])
+Gglass16 = wall.loc['Glass', 'Surface'] / (1 / h['out'] + 1 / h['in'])
 Gporte16 = wall.loc['Door', 'Surface'] / (1 / h['out'] + 1 / G_cd['Door'] + 1 / h['in'])
 Gporte17 = wall.loc['Door', 'Surface'] / (1 / h['in'] + 1 / G_cd['Door'] + 1 / h['in'])
 G16 = float(Gv['S'] + Gglass16.iloc[0])
