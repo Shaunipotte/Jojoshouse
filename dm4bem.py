@@ -1381,8 +1381,8 @@ def tc2ss(TC):
     idx_C = pd.Series(C.index)
     idx_u = pd.concat([idx_G, idx_C])
 
-    G = pd.DataFrame(np.diag(G), index=G.index, columns=G.index)
-    C = pd.DataFrame(np.diag(C), index=C.index, columns=C.index)
+    G = pd.DataFrame(np.diag(G.values.flatten()), index=G.index, columns=G.index)
+    C = pd.DataFrame(np.diag(C.values.flatten()), index=C.index, columns=C.index)
 
     C_diag = np.diag(C.values)  # Get the values on the diagonal of C
 
