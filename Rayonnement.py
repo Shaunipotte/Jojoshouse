@@ -50,24 +50,6 @@ def donnees(moment) :
     
     
     
-        # Tracer de la température de l'air extérieure 
-        
-    #Plot outdoor air temperature
-    weather_data['temp_air'].plot()
-    plt.xlabel("Time")
-    plt.ylabel("Dry-bulb air temperature, θ / °C")
-    plt.legend([])
-    plt.show()
-    
-    #Plot solar radiation: normal direct and horizontal diffuse
-    weather_data[['dir_n_rad', 'dif_h_rad']].plot()
-    plt.xlabel("Time")
-    plt.ylabel("Solar radiation, Φ / (W·m⁻²)")
-    plt.legend(['$Φ_{direct}$', '$Φ_{diffuse}$'])
-    plt.show()
-    
-    
-    
                 #Solar radiation on a tilted surface 
     
     
@@ -86,16 +68,7 @@ def donnees(moment) :
     albedo = 0.2
     
     
-        # Tracer du rayonnement solaire 
-        
-    #Plot solar radiation
-    rad_surf = sol_rad_tilt_surf(
-        weather_data, surface_orientation, albedo)
     
-    rad_surf.plot()
-    plt.xlabel("Time")
-    plt.ylabel("Solar irradiance,  Φ / (W·m⁻²)")
-    plt.show()
     
     #Pour ibtenir la valeur à un temps spécifique : 
     #print(f"{rad_surf.loc['2000-06-29 12:00']['direct']:.0f} W/m²")
@@ -186,16 +159,7 @@ def donnees(moment) :
                            'latitude': 45.77}  # °
     albedo = 0.2
     
-     # Tracer du rayonnement solaire 
-        
-    #Plot solar radiation
-    rad_surf = sol_rad_tilt_surf(
-        weather_data, surface_orientation, albedo)
-    
-    rad_surf.plot()
-    plt.xlabel("Time")
-    plt.ylabel("Solar irradiance,  Φ / (W·m⁻²)")
-    plt.show()
+
     
     #Pour obtenir la valeur à un temps spécifique : 
     #print(f"{rad_surf.loc['2000-06-29 12:00']['direct']:.0f} W/m²")
