@@ -277,8 +277,8 @@ def donnees(moment) :
     rayonnement['nord']=nord
     
     Text = float(weather_data.loc[moment, "temp_air"])
-    print(Text)
-    print(rayonnement)
+    #print(Text)
+    #print(rayonnement)
 
     return (rayonnement, Text)
 
