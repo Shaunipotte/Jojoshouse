@@ -18,20 +18,19 @@ from Donnes_dynamiques import donnees_dynamique
 ############################# Données #########################################
 ###############################################################################
 
-start_date = '2000-06-29 12:00' # à changer seon la journée que l'on veut
-end_date = '2000-06-30 12:00'
+start_date = '2000-06-29 12:00:00' # à changer seon la journée que l'on veut
+end_date = '2000-06-30 12:00:00'
+### faire surper attention au formatage des dates
 
 dico_dyn, Text_dyn = donnees_dynamique(start_date, end_date)
-
 #en dynamique la température change au fur et à mesure
-T_ext = 25
-#éclairement
+
+#coeffs d'éclairement
 alpha_ext=0.5
 alpha_in=0.4
 tau=0.3
-EN = 332.8795 ###éclairement nord à rédéfinir
-ES = 406.649  ###éclairement surd à rédéfinir
 
+# la pièce
 largeur = 4     # largeur des pièces
 longueur = 8    # longueur de l'appartement
 hauteur = 3     # hauteur des murs 
@@ -140,15 +139,10 @@ A[20,9] = 1
 A = pd.DataFrame(A, index=q, columns=θ)
 
 ############ Matrice B avec T_ext définit à l'aide du code rayonnement ########
-b = np.zeros([nq])
-b[0] = T_ext
-b[15] = T_ext
-b[16] = T_ext
-b[18] = T_ext
-b[19] = Tc
-b[20] = Tc
-
-b = pd.Series(b, index=q)
+b = pd.Series(['Text', 0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 'Text', 'Text', 0,
+               'Text', 'Tc', 'Tc'],
+              index=q)
 
 #################################### Matrice G ################################
 
@@ -204,29 +198,12 @@ G = np.array(np.hstack((GN, GM, GS, GP, GC)))
 G = pd.DataFrame(G, index=q)
 
 ########################## Matrice f des flux apportés ########################
-f = np.zeros([nθ])
-
-phi_n=alpha_ext*EN*Surface["Nord"]
-phi_s=alpha_ext*ES*Surface["Sud"]
-phi_iN=tau*EN*glass["Surface"]
-phi_iN1=alpha_in*phi_iN*(Surface["Nord"]/(Surface["Milieu"]+2*Surface["Lateral"]+Surface["Nord"]+2*Surface["Plafond"]))
-phi_iN2=alpha_in*phi_iN*(Surface["Milieu"]/(Surface["Milieu"]+2*Surface["Lateral"]+Surface["Nord"]+2*Surface["Plafond"]))
-phi_iS=tau*ES*glass["Surface"]
-phi_iS1=alpha_in*phi_iS*(Surface["Sud"]/(2*Surface["Lateral"]+Surface["Milieu"]+Surface["Sud"]+2*Surface["Plafond"]))
-phi_iS2 = alpha_in*phi_iS*(Surface["Milieu"]/(2*Surface["Lateral"]+Surface["Milieu"]+Surface["Sud"]+2*Surface["Plafond"]))
-
-f[0] = phi_n
-f[4] = phi_iN1
-f[5] = Qa
-f[6] = phi_iN2
-f[8] = phi_iS2
-f[10] = phi_iS1
-f[14] = phi_s
-
-f = pd.Series(f, index=θ)
+f = pd.Series(['Φin', 0, 0, 0, 'ΦiN1', 'Qa', 
+               'ΦiN2', 0, 'ΦiS2', 0, 'ΦiS1',
+               0, 0, 0, 'Φis'],
+              index=θ)
 
 ############# Matrice C des capacités (en statique non utile) #################
-
 # Compute capacities for walls
 C_walls = wall['Density'] * wall['Specific heat'] * wall['Width']
 # Compute capacity for air
@@ -254,8 +231,8 @@ C = np.array(np.hstack((CN, CM, CS)))
 C = pd.DataFrame(C, index=θ)
 
 # Matrice des températures
-y = np.zeros(len(θ))     # nodes and len(θ) = 15
-y = pd.DataFrame(y, index=θ, columns=[1])
+y = np.zeros([len(θ)])     # nodes and len(θ) = 15
+pd.DataFrame(y, index=θ)
 
 ###############################################################################
 ###################### Résolution dynamique ###################################
@@ -268,6 +245,8 @@ C = pd.DataFrame(C, index=θ)
 b = pd.Series(b, index=q)
 f = pd.Series(f, index=θ)
 y = pd.Series(y, index=θ)
+y.loc[["θ1", "θ3", "θ5", "θ7", "θ9", "θ11", "θ13"]] = 1
+#### nodes of interest, literally have no clue why we need this, but without it nothing works sooo
 TC = {"A": A,
       "G": G,
       "C": C,
@@ -290,7 +269,7 @@ print("y:", y.shape)
 #définition du pas de temps
 λ = np.linalg.eig(As)[0]        # eigenvalues of matrix As
 dtmax = 2 * min(-1. / λ)        #pas de temps max
-print(f"Pas de temps maximal pour stabilité : {dt_max:.2f} s") 
+print(f"Pas de temps maximal pour stabilité : {dtmax:.2f} s") 
 
 dt = 180 # Choisir un pas de temps inférieur pour garantir la stabilité
 
@@ -304,76 +283,84 @@ print_rounded_time('duration', duration)
 
 
 #maintenant on passe à la définition des points et du dico de u (f et T)
-n_points = int((pd.Timestamp(end_date) - pd.Timestamp(start_date)).total_seconds() / pas_temps)
+n_points = int((pd.Timestamp(end_date) - pd.Timestamp(start_date)).total_seconds() / dt)
+n = n_points
 
 # DateTimeIndex starting at "00:00:00" with a time step of dt
 time = pd.date_range(start = start_date,
                            periods = n, freq=f"{int(dt)}S")
 
+#les températures
 Text = np.ones(n)
-t = 0
-i = 0
-k = 3600/dt
-j=0
+k = int(3600/dt) #nombre de T_dyn qui se répètent car correspondent à 1 h
 v=0
-while i < n : 
-    t += dt
-    if j!=20 : 
-        Text[i] = dico_dyn[1][v]
-        i+=1
-    else : 
-        v+=1
-        j = 1
-        Text[i] = dico_dyn[1][v]
-        i+=1
+for key, value in Text_dyn.items():
+    Text[v : v+k] = value
+    v = v+k
         
 Tc = Tc*np.ones(n)
 
-Φin = alpha_ext*EN*Surface["Nord"]
-
-
 Qa = 80*np.ones(n) # on peut tenter ensuite de simuler une évolution des consommations selon la nuit ou le jour en remplissant avec une boucle
 
-data = {'Text': Text, 'Tc': Tc, 'Φin': Φin, 'ΦiN1': ΦiN1, 'Qa': Qa, 'ΦiN2': ΦiN2, 'Φis2': ΦiS2, 'ΦiS1': ΦiS1, 'Φis': Φis}
+
+#les flux au nord
+Φin = np.ones(n)
+ΦiN1 = np.ones(n)
+ΦiN2 = np.ones(n)
+v=0
+for key, value in dico_dyn.items():
+    EN = value['nord']['total']
+    Φin[v : v+k] = alpha_ext*EN*Surface["Nord"]
+    ΦiN1[v : v+k] = alpha_in*tau*EN*glass["Surface"]*(Surface["Nord"]/(Surface["Milieu"]+2*Surface["Lateral"]+Surface["Nord"]+2*Surface["Plafond"]))
+    ΦiN2[v : v+k] = alpha_in*tau*EN*glass["Surface"]*(Surface["Milieu"]/(Surface["Milieu"]+2*Surface["Lateral"]+Surface["Nord"]+2*Surface["Plafond"]))
+    v = v+k
+
+#ceux au sud
+Φis = np.ones(n)
+ΦiS1 = np.ones(n)
+ΦiS2 = np.ones(n)
+v=0
+for key, value in dico_dyn.items():
+    ES = value['sud']['total']
+    Φis[v : v+k] = alpha_ext*ES*Surface["Sud"]
+    ΦiS1[v : v+k] = alpha_in*tau*ES*glass["Surface"]*(Surface["Sud"]/(2*Surface["Lateral"]+Surface["Milieu"]+Surface["Sud"]+2*Surface["Plafond"]))
+    ΦiS2[v : v+k] = alpha_in*tau*ES*glass["Surface"]*(Surface["Milieu"]/(2*Surface["Lateral"]+Surface["Milieu"]+Surface["Sud"]+2*Surface["Plafond"]))
+    v = v+k
+
+data = {'Text': Text, 'Tc': Tc, 'Φin': Φin, 'ΦiN1': ΦiN1, 'Qa': Qa, 'ΦiN2': ΦiN2, 'ΦiS2': ΦiS2, 'ΦiS1': ΦiS1, 'Φis': Φis}
 input_data_set = pd.DataFrame(data, index=time)
 
 u = inputs_in_time(us, input_data_set)
 
-# Initialisation des résultats
-theta = np.zeros((n_points, n_theta))  # Températures aux noeuds
 
-# Conditions initiales
-theta[0, :] = np.zeros(n_theta)  # Par exemple, toutes les températures initiales à 0
+################################## ENFIN CALCULER LES CHOSES QUON VEUT #####################
+# Initial conditions
+θ_exp = pd.DataFrame(index=u.index)     # empty df with index for explicit Euler
+θ_imp = pd.DataFrame(index=u.index)     # empty df with index for implicit Euler
 
-# Simulation par Euler explicite
-for i in range(1, n_points):
-    # Valeurs actuelles
-    current_time = time[i]
-    u = np.zeros(Bs.shape[1])  # Initialisation des entrées du système
+θ0 = Text_dyn[start_date]   # initial temperatures
+θ_exp[As.columns] = θ0      # fill θ for Euler explicit with initial values θ0
+θ_imp[As.columns] = θ0      # fill θ for Euler implicit with initial values θ0
 
-    # Mise à jour des conditions de bord selon le dictionnaire dico_dyn
-    time_str = str(current_time)
-    if time_str in dico_dyn:
-        u[:len(f)] = [dico_dyn[time_str]['nord']['total'],  # Exemple pour l'éclairement nord
-                      dico_dyn[time_str]['sud']['total']]  # Exemple pour l'éclairement sud
-    else:
-        u[:len(f)] = 0  # Valeurs par défaut si les données sont absentes
+I = np.eye(As.shape[0])     # identity matrix
+for k in range(u.shape[0] - 1):
+    θ_exp.iloc[k + 1] = (I + dt * As)\
+        @ θ_exp.iloc[k] + dt * Bs @ u.iloc[k]
+    θ_imp.iloc[k + 1] = np.linalg.inv(I - dt * As)\
+        @ (θ_imp.iloc[k] + dt * Bs @ u.iloc[k])
 
-    # Intégration explicite : theta(t+1) = theta(t) + dt * (As * theta(t) + Bs * u)
-    theta[i, :] = theta[i - 1, :] + pas_temps * (As @ theta[i - 1, :] + Bs @ u)
+# outputs
+y_exp = (Cs @ θ_exp.T + Ds @  u.T).T
+y_imp = (Cs @ θ_imp.T + Ds @  u.T).T
 
-# Résultats : conversion en DataFrame pour faciliter l'analyse
-results = pd.DataFrame(theta, index=time, columns=theta)
 
-# Visualisation des résultats
-plt.figure(figsize=(10, 6))
-for i, var in enumerate(theta):
-    plt.plot(results.index, results[var], label=f"{var}")
-plt.xlabel("Temps")
-plt.ylabel("Température (°C)")
-plt.legend()
-plt.title("Évolution des températures par Euler explicite")
-plt.grid()
+# plot results
+y = pd.concat([y_exp, y_imp], axis=1, keys=['Explicit', 'Implicit'])
+# Flatten the two-level column labels into a single level
+y.columns = y.columns.get_level_values(0)
+ax = y.plot()
+ax.set_xlabel('Time')
+ax.set_ylabel('Indoor temperature, $\\theta_i$ / °C')
+ax.set_title(f'Time step: $dt$ = {dt:.0f} s; $dt_{{max}}$ = {dtmax:.0f} s')
 plt.show()
-
 
