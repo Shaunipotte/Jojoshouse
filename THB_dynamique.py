@@ -18,9 +18,8 @@ from Donnes_dynamiques import donnees_dynamique
 ############################# Données #########################################
 ###############################################################################
 
-start_date = '2000-06-29 12:00:00' # à changer seon la journée que l'on veut
+start_date = '2000-06-20 12:00:00' # à changer seon la journée que l'on veut
 end_date = '2000-06-30 12:00:00'
-### faire surper attention au formatage des dates
 
 dico_dyn, Text_dyn = donnees_dynamique(start_date, end_date)
 #en dynamique la température change au fur et à mesure
@@ -30,7 +29,6 @@ alpha_ext=0.5
 alpha_in=0.4
 tau=0.3
 
-# la pièce
 largeur = 4     # largeur des pièces
 longueur = 8    # longueur de l'appartement
 hauteur = 3     # hauteur des murs 
@@ -204,6 +202,7 @@ f = pd.Series(['Φin', 0, 0, 0, 'ΦiN1', 'Qa',
               index=θ)
 
 ############# Matrice C des capacités (en statique non utile) #################
+
 # Compute capacities for walls
 C_walls = wall['Density'] * wall['Specific heat'] * wall['Width']
 # Compute capacity for air
@@ -233,6 +232,7 @@ C = pd.DataFrame(C, index=θ)
 # Matrice des températures
 y = np.zeros([len(θ)])     # nodes and len(θ) = 15
 pd.DataFrame(y, index=θ)
+
 
 ###############################################################################
 ###################### Résolution dynamique ###################################
@@ -264,14 +264,14 @@ print("y:", y.shape)
 ## système  DAE : utliser dm4bem
 [As, Bs, Cs, Ds, us] = tc2ss(TC)
 
-########################## discretisation #######################################
+################################### discretisation #######################################
 
 #définition du pas de temps
 λ = np.linalg.eig(As)[0]        # eigenvalues of matrix As
 dtmax = 2 * min(-1. / λ)        #pas de temps max
 print(f"Pas de temps maximal pour stabilité : {dtmax:.2f} s") 
 
-dt = 180 # Choisir un pas de temps inférieur pour garantir la stabilité
+dt = 160 # Choisir un pas de temps inférieur pour garantir la stabilité
 
 # settling time, temps de fin de simulation max
 t_f = 4 * max(-1 / λ)
@@ -341,7 +341,8 @@ u = inputs_in_time(us, input_data_set)
 θ_exp = pd.DataFrame(index=u.index)     # empty df with index for explicit Euler
 θ_imp = pd.DataFrame(index=u.index)     # empty df with index for implicit Euler
 
-θ0 = Text_dyn[start_date]   # initial temperatures
+θ0 = 20   # initial temperatures 
+#A CHANGER POUR CONTOURNER LE PROBLEME DE TEMPS DE REPONSE
 θ_exp[As.columns] = θ0      # fill θ for Euler explicit with initial values θ0
 θ_imp[As.columns] = θ0      # fill θ for Euler implicit with initial values θ0
 
@@ -356,7 +357,8 @@ for k in range(u.shape[0] - 1):
 y_exp = (Cs @ θ_exp.T + Ds @  u.T).T
 y_imp = (Cs @ θ_imp.T + Ds @  u.T).T
 
- plot results
+
+# plot results
 y = pd.concat([y_exp, y_imp], axis=1,)
 # Flatten the two-level column labels into a single level
 y.columns = y.columns.get_level_values(0)
@@ -369,6 +371,9 @@ labels = ['$\\theta_1$', '$\\theta_3$', '$\\theta_5$', '$\\theta_7$', '$\\theta_
     '$\\theta_{11}$', '$\\theta_{13}$', '$\\theta_1$ imp', '$\\theta_3$ imp', 
     '$\\theta_5$ imp', '$\\theta_7$ imp', '$\\theta_9$ imp', 
     '$\\theta_{11}$ imp', '$\\theta_{13}$ imp']
+colors = ['#FF0000','#FFD700','#00FF00','#0000FF','#FF4500', '#800080', '#FF1493','#800000',
+          '#808000','#008000','#000080','#8B0000','#0000A0','#800080']
+
 
 # Créer une figure
 fig, ax = plt.subplots()
@@ -376,11 +381,11 @@ fig, ax = plt.subplots()
 # Tracer la première colonne
 for i in range(0,len(y.columns)):
     y_col = y.iloc[:, i]
-    ax.plot(y_col.index, y_col, label=labels[i], linestyle=linestyles[i])
+    ax.plot(y_col.index, y_col, label=labels[i], linestyle=linestyles[i], color=colors[i])
 
 # Ajouter des labels et un titre
 ax.set_xlabel('Time')
 ax.set_ylabel('Indoor temperature, $\\theta_i$ / °C')
-ax.set_title(f'Time step: $dt$ = {dt:.0f} s; $dt_{{max}}$ = {dtmax:.0f} s')
+ax.set_title(f'Time step: $dt$ = {dt:.0f} s; $dt_{{max}}$ = {dtmax:.0f} s, CI : {θ0}')
 ax.legend()
 plt.show()
