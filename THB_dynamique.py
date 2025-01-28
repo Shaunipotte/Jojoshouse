@@ -300,8 +300,11 @@ for key, value in Text_dyn.items():
         
 Tc = Tc*np.ones(n)
 
-Qa = 80*np.ones(n) # on peut tenter ensuite de simuler une évolution des consommations selon la nuit ou le jour en remplissant avec une boucle
-
+Qa = 90*np.ones(n) # on peut tenter ensuite de simuler une évolution des consommations selon la nuit ou le jour en remplissant avec une boucle
+nuit = int((3600*9/dt))
+jour = int((3600*18/dt))
+Qa[0:0+nuit] = 120
+Qa[nuit:jour] = 70
 
 #les flux au nord
 Φin = np.ones(n)
@@ -353,14 +356,31 @@ for k in range(u.shape[0] - 1):
 y_exp = (Cs @ θ_exp.T + Ds @  u.T).T
 y_imp = (Cs @ θ_imp.T + Ds @  u.T).T
 
-
-# plot results
-y = pd.concat([y_exp, y_imp], axis=1, keys=['Explicit', 'Implicit'])
+ plot results
+y = pd.concat([y_exp, y_imp], axis=1,)
 # Flatten the two-level column labels into a single level
 y.columns = y.columns.get_level_values(0)
-ax = y.plot()
+
+# Créer les styles pour chaque série
+linestyles = ['-'] * 7 + ['--'] * 7  # Traits solides pour les 7 premiers, pointillés pour les 7 derniers
+
+# Définir les noms des courbes
+labels = ['$\\theta_1$', '$\\theta_3$', '$\\theta_5$', '$\\theta_7$', '$\\theta_9$', 
+    '$\\theta_{11}$', '$\\theta_{13}$', '$\\theta_1$ imp', '$\\theta_3$ imp', 
+    '$\\theta_5$ imp', '$\\theta_7$ imp', '$\\theta_9$ imp', 
+    '$\\theta_{11}$ imp', '$\\theta_{13}$ imp']
+
+# Créer une figure
+fig, ax = plt.subplots()
+
+# Tracer la première colonne
+for i in range(0,len(y.columns)):
+    y_col = y.iloc[:, i]
+    ax.plot(y_col.index, y_col, label=labels[i], linestyle=linestyles[i])
+
+# Ajouter des labels et un titre
 ax.set_xlabel('Time')
 ax.set_ylabel('Indoor temperature, $\\theta_i$ / °C')
 ax.set_title(f'Time step: $dt$ = {dt:.0f} s; $dt_{{max}}$ = {dtmax:.0f} s')
+ax.legend()
 plt.show()
-
