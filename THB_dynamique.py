@@ -417,21 +417,21 @@ Q[['q_HVAC_N_exp', 'q_HVAC_S_exp', 'q_HVAC_N_imp', 'q_HVAC_S_imp']].plot(ax=ax[2
 # Configure subplot 1 (les parois)
 ax[0].set_xlabel('Time', fontsize=12)
 ax[0].set_ylabel('Temperature $\\theta_i$ (°C)', fontsize=12)
-ax[0].set_title(f'Wall Temperatures: $dt$ = {dt:.0f} s, $dt_{{max}}$ = {dtmax:.0f} s, CI: {θ0}', fontsize=14)
+ax[0].set_title(f'CAS 0 - Wall Temperatures: $dt$ = {dt:.0f} s, $dt_{{max}}$ = {dtmax:.0f} s, CI: {θ0}', fontsize=14)
 ax[0].legend(bbox_to_anchor=(1.05, 0.5), loc='center left', fontsize=10)
 ax[0].grid(True, linestyle='--', alpha=0.7)
 
 # Configure subplot 2 (les pièces)
 ax[1].set_xlabel('Time', fontsize=12)
 ax[1].set_ylabel('Temperature $\\theta_i$ (°C)', fontsize=12)
-ax[1].set_title(f'Room Temperatures: $dt$ = {dt:.0f} s, CI: {θ0}', fontsize=14)
+ax[1].set_title(f'CAS 0 - Room Temperatures: $dt$ = {dt:.0f} s, CI: {θ0}', fontsize=14)
 ax[1].legend(bbox_to_anchor=(1.05, 0.5), loc='center left', fontsize=10)
 ax[1].grid(True, linestyle='--', alpha=0.7)
 
 # Configure subplot 3 (les flux de radiateurs)
 ax[2].set_ylabel('Heat Rate $q$ (W·m⁻²)', fontsize=12)
 ax[2].set_xlabel('Time', fontsize=12)
-ax[2].set_title(f'HVAC Fluxes: $dt$ = {dt:.0f} s', fontsize=14)
+ax[2].set_title(f'CAS 0 - HVAC Fluxes: $dt$ = {dt:.0f} s', fontsize=14)
 ax[2].legend(['$q_{HVAC} North$ Exp.', '$q_{HVAC} South$ Exp.', 
               '$q_{HVAC} North$ Imp.', '$q_{HVAC} South$ Imp.'], 
              bbox_to_anchor=(1.05, 0.5), loc='center left', fontsize=10)
