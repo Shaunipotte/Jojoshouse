@@ -375,17 +375,27 @@ colors = ['#FF0000','#FFD700','#00FF00','#0000FF','#FF4500', '#800080', '#FF1493
           '#808000','#008000','#000080','#8B0000','#0000A0','#800080']
 
 
+
 # Créer une figure
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(2,1)
+fig.tight_layout() #eviter le overlap
 
 # Tracer la première colonne
 for i in range(0,len(y.columns)):
-    y_col = y.iloc[:, i]
-    ax.plot(y_col.index, y_col, label=labels[i], linestyle=linestyles[i], color=colors[i])
+    if i != 2 and i !=4 and i!=9 and i!=11:
+        y_col = y.iloc[:, i]
+        ax[0].plot(y_col.index, y_col, label=labels[i], linestyle=linestyles[i], color=colors[i])
+    else :
+        y_col = y.iloc[:, i]
+        ax[1].plot(y_col.index, y_col, label=labels[i], linestyle=linestyles[i], color=colors[i])
 
 # Ajouter des labels et un titre
-ax.set_xlabel('Time')
-ax.set_ylabel('Indoor temperature, $\\theta_i$ / °C')
-ax.set_title(f'Time step: $dt$ = {dt:.0f} s; $dt_{{max}}$ = {dtmax:.0f} s, CI : {θ0}')
-ax.legend()
+ax[0].set_xlabel('Time')
+ax[0].set_ylabel('Indoor temperature, $\\theta_i$ / °C')
+ax[0].set_title(f'Les parois, Time step: $dt$ = {dt:.0f} s; $dt_{{max}}$ = {dtmax:.0f} s, CI : {θ0}')
+ax[0].legend(bbox_to_anchor=(1.05, 1), loc=1) ### définir position des légendes pour plus de visibilité
+ax[1].set_xlabel('Time')
+ax[1].set_ylabel('Indoor temperature, $\\theta_i$ / °C')
+ax[1].set_title(f'Températures des pièces Time step: $dt$ = {dt:.0f} s; CI = {θ0}')
+ax[1].legend(bbox_to_anchor=(1.05, 1),loc=4)
 plt.show()
