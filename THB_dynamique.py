@@ -399,7 +399,7 @@ colors = ['#FF0000','#FFD700','#00FF00','#0000FF','#FF4500', '#800080', '#FF1493
 
 ####################################### La figure ######################################
 # Create figure with increased size
-fig, ax = plt.subplots(3, 1, figsize=(10, 8))
+fig, ax = plt.subplots(4, 1, figsize=(10, 8))
 fig.subplots_adjust(hspace=0.4)  # Adjust vertical spacing
 
 # on sépare les deux analyses
@@ -413,12 +413,16 @@ for i in range(len(y.columns)):
 
 # les flux HVAC
 Q[['q_HVAC_N_exp', 'q_HVAC_S_exp', 'q_HVAC_N_imp', 'q_HVAC_S_imp']].plot(ax=ax[2])
+#les temps ext
+text_series = pd.Series(Text_dyn).sort_index()
+ax[3].plot(text_series.index, text_series.values)
 
 # Configure subplot 1 (les parois)
 ax[0].set_xlabel('Time', fontsize=12)
 ax[0].set_ylabel('Temperature $\\theta_i$ (°C)', fontsize=12)
 ax[0].set_title(f'CAS 0 - Wall Temperatures: $dt$ = {dt:.0f} s, $dt_{{max}}$ = {dtmax:.0f} s, CI: {θ0}', fontsize=14)
 ax[0].legend(bbox_to_anchor=(1.05, 0.5), loc='center left', fontsize=10)
+ax[0].xaxis.set_major_locator(mdates.HourLocator(interval=24))#permet de pas avoir 100000 valeurs de temps sur le graphique, à changer si pas 10jours
 ax[0].grid(True, linestyle='--', alpha=0.7)
 
 # Configure subplot 2 (les pièces)
@@ -426,6 +430,7 @@ ax[1].set_xlabel('Time', fontsize=12)
 ax[1].set_ylabel('Temperature $\\theta_i$ (°C)', fontsize=12)
 ax[1].set_title(f'CAS 0 - Room Temperatures: $dt$ = {dt:.0f} s, CI: {θ0}', fontsize=14)
 ax[1].legend(bbox_to_anchor=(1.05, 0.5), loc='center left', fontsize=10)
+ax[1].xaxis.set_major_locator(mdates.HourLocator(interval=24))#permet de pas avoir 100000 valeurs de temps sur le graphique, à changer si pas 10jours
 ax[1].grid(True, linestyle='--', alpha=0.7)
 
 # Configure subplot 3 (les flux de radiateurs)
@@ -436,6 +441,14 @@ ax[2].legend(['$q_{HVAC} North$ Exp.', '$q_{HVAC} South$ Exp.',
               '$q_{HVAC} North$ Imp.', '$q_{HVAC} South$ Imp.'], 
              bbox_to_anchor=(1.05, 0.5), loc='center left', fontsize=10)
 ax[2].grid(True, linestyle='--', alpha=0.7)
+
+# Configure subplot 4 (les températures extérieures)
+ax[3].set_xlabel('Time', fontsize=12)
+ax[3].set_ylabel('Temperature (°C)', fontsize=12)
+ax[3].set_title('CAS 0 - Outside Temperatures', fontsize=14)
+ax[3].legend(bbox_to_anchor=(1.05, 0.5), loc='center left', fontsize=10)
+ax[3].xaxis.set_major_locator(mdates.HourLocator(interval=24*60)) #permet de pas avoir 100000 valeurs de temps sur le graphique, à changer si pas 10jours
+ax[3].grid(True, linestyle='--', alpha=0.7)
 
 # Show plot
 plt.show()
