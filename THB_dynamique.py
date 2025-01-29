@@ -357,12 +357,35 @@ for k in range(u.shape[0] - 1):
 y_exp = (Cs @ θ_exp.T + Ds @  u.T).T
 y_imp = (Cs @ θ_imp.T + Ds @  u.T).T
 
-
 # plot results
 y = pd.concat([y_exp, y_imp], axis=1,)
 # Flatten the two-level column labels into a single level
 y.columns = y.columns.get_level_values(0)
 
+#flux des controlleurs seulement
+u['q19'] = pd.to_numeric(u['q19'], errors='coerce')
+y['θ5'].iloc[:, 0] = pd.to_numeric(y['θ5'].iloc[:, 0], errors='coerce')
+y['θ5'].iloc[:, 1] = pd.to_numeric(y['θ5'].iloc[:, 1], errors='coerce')
+y['θ9'].iloc[:, 0] = pd.to_numeric(y['θ9'].iloc[:, 0], errors='coerce')
+y['θ9'].iloc[:, 1] = pd.to_numeric(y['θ9'].iloc[:, 1], errors='coerce')
+
+#pièce Nord
+Sn = 2*Surface["Plafond"]+Surface["Nord"]+Surface["Milieu"] # m², surface area of the toy house
+q_HVAC_N_exp = KpN * (u['q19'] - y['θ5'].iloc[:, 0]) / Sn  # W/m²
+q_HVAC_N_imp = KpN * (u['q19'] - y['θ5'].iloc[:, 1]) / Sn  # W/m²
+#pièce Nord
+Ss = 2*Surface["Plafond"]+Surface["Sud"]+Surface["Milieu"]  # m², surface area of the toy house
+q_HVAC_S_exp = KpS * (u['q20'] - y['θ9'].iloc[:, 0]) / Ss  # W/m²
+q_HVAC_S_imp = KpS * (u['q20'] - y['θ9'].iloc[:, 1]) / Ss  # W/m²
+
+#on met ça dans un tableau
+Q = pd.DataFrame(index=u.index)
+Q['q_HVAC_N_exp'] = q_HVAC_N_exp
+Q['q_HVAC_S_exp'] = q_HVAC_S_exp
+Q['q_HVAC_N_imp'] = q_HVAC_N_imp
+Q['q_HVAC_S_imp'] = q_HVAC_S_imp
+
+##################################### Plot des choses ################################
 # Créer les styles pour chaque série
 linestyles = ['-'] * 7 + ['--'] * 7  # Traits solides pour les 7 premiers, pointillés pour les 7 derniers
 
@@ -374,28 +397,45 @@ labels = ['$\\theta_1$', '$\\theta_3$', '$\\theta_5$', '$\\theta_7$', '$\\theta_
 colors = ['#FF0000','#FFD700','#00FF00','#0000FF','#FF4500', '#800080', '#FF1493','#800000',
           '#808000','#008000','#000080','#8B0000','#0000A0','#800080']
 
+####################################### La figure ######################################
+# Create figure with increased size
+fig, ax = plt.subplots(3, 1, figsize=(10, 8))
+fig.subplots_adjust(hspace=0.4)  # Adjust vertical spacing
 
-
-# Créer une figure
-fig, ax = plt.subplots(2,1)
-fig.tight_layout() #eviter le overlap
-
-# Tracer la première colonne
-for i in range(0,len(y.columns)):
-    if i != 2 and i !=4 and i!=9 and i!=11:
+# on sépare les deux analyses
+for i in range(len(y.columns)):
+    if i not in [2, 4, 9, 11]:
         y_col = y.iloc[:, i]
         ax[0].plot(y_col.index, y_col, label=labels[i], linestyle=linestyles[i], color=colors[i])
-    else :
+    else:
         y_col = y.iloc[:, i]
         ax[1].plot(y_col.index, y_col, label=labels[i], linestyle=linestyles[i], color=colors[i])
 
-# Ajouter des labels et un titre
-ax[0].set_xlabel('Time')
-ax[0].set_ylabel('Indoor temperature, $\\theta_i$ / °C')
-ax[0].set_title(f'Les parois, Time step: $dt$ = {dt:.0f} s; $dt_{{max}}$ = {dtmax:.0f} s, CI : {θ0}')
-ax[0].legend(bbox_to_anchor=(1.05, 1), loc=1) ### définir position des légendes pour plus de visibilité
-ax[1].set_xlabel('Time')
-ax[1].set_ylabel('Indoor temperature, $\\theta_i$ / °C')
-ax[1].set_title(f'Températures des pièces Time step: $dt$ = {dt:.0f} s; CI = {θ0}')
-ax[1].legend(bbox_to_anchor=(1.05, 1),loc=4)
+# les flux HVAC
+Q[['q_HVAC_N_exp', 'q_HVAC_S_exp', 'q_HVAC_N_imp', 'q_HVAC_S_imp']].plot(ax=ax[2])
+
+# Configure subplot 1 (les parois)
+ax[0].set_xlabel('Time', fontsize=12)
+ax[0].set_ylabel('Temperature $\\theta_i$ (°C)', fontsize=12)
+ax[0].set_title(f'Wall Temperatures: $dt$ = {dt:.0f} s, $dt_{{max}}$ = {dtmax:.0f} s, CI: {θ0}', fontsize=14)
+ax[0].legend(bbox_to_anchor=(1.05, 0.5), loc='center left', fontsize=10)
+ax[0].grid(True, linestyle='--', alpha=0.7)
+
+# Configure subplot 2 (les pièces)
+ax[1].set_xlabel('Time', fontsize=12)
+ax[1].set_ylabel('Temperature $\\theta_i$ (°C)', fontsize=12)
+ax[1].set_title(f'Room Temperatures: $dt$ = {dt:.0f} s, CI: {θ0}', fontsize=14)
+ax[1].legend(bbox_to_anchor=(1.05, 0.5), loc='center left', fontsize=10)
+ax[1].grid(True, linestyle='--', alpha=0.7)
+
+# Configure subplot 3 (les flux de radiateurs)
+ax[2].set_ylabel('Heat Rate $q$ (W·m⁻²)', fontsize=12)
+ax[2].set_xlabel('Time', fontsize=12)
+ax[2].set_title(f'HVAC Fluxes: $dt$ = {dt:.0f} s', fontsize=14)
+ax[2].legend(['$q_{HVAC} North$ Exp.', '$q_{HVAC} South$ Exp.', 
+              '$q_{HVAC} North$ Imp.', '$q_{HVAC} South$ Imp.'], 
+             bbox_to_anchor=(1.05, 0.5), loc='center left', fontsize=10)
+ax[2].grid(True, linestyle='--', alpha=0.7)
+
+# Show plot
 plt.show()
