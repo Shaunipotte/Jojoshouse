@@ -15,16 +15,15 @@ from Donnes_dynamiques import moyenne
 ############################# Données #########################################
 ###############################################################################
 
-start_date = '2000-12-21 00:00' # à changer seon la journée que l'on veut
+start_date = '2000-12-21 00:00' # à changer selon la journée que l'on veut
 end_date = '2000-12-22 00:00'
 
-#en statique on prend la moyenne sur une journée, il devrait y avoir un moyen de faire ça avec le dico
-dico_moyen_hiver, T_ext_hiver = moyenne(start_date,end_date)
+dico_moyen_hiver, T_ext_hiver = moyenne(start_date,end_date)  #en statique on prend la moyenne sur une journée
 
-start_date = '2000-06-21 00:00' # à changer seon la journée que l'on veut
+
+start_date = '2000-06-21 00:00' 
 end_date = '2000-06-22 00:00'
 
-#en statique on prend la moyenne sur une journée, il devrait y avoir un moyen de faire ça avec le dico
 dico_moyen_ete, T_ext_ete = moyenne(start_date,end_date)
 
 
@@ -78,10 +77,8 @@ wall = pd.DataFrame.from_dict({'Layer_in': concrete,
 h = pd.DataFrame([{'in': 8., 'out': 25}], index=['h'])
 
 #thermostat ######
-# Kp = 1e4            # almost perfect controller Kp -> ∞
-# Kp = 1e-3           # no controller Kp -> 0
-KpN = 1e-4 #pièce nord
-KpS = 1e3 #pièce Sud
+KpN = 1e-4 #pièce nord, no controller Kp -> 0
+KpS = 1e3 #pièce Sud, almost perfect controller Kp -> ∞
 Tc_hiver = 22
 Tc_ete = 18
 
@@ -107,10 +104,8 @@ ES_ete = dico_moyen_ete['sud']['total']  ###éclairement surd à rédéfinir
 q = ['q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11','q12', 'q13', 'q14', 'q15', 'q16', 'q17', 'q18', 'q19', 'q20']
 # temperature nodes
 nθ = len(θ)      # number of temperature nodes
-#θ = [f'θ{i}' for i in range(nθ)] #autre méthode
 # flow-rate branches
 nq = len(q)     # number of flow branches
-#q = [f'q{i}' for i in range(nq)] #autre méthode
 
 
 ########################### matrice A des flux #############################
@@ -146,7 +141,7 @@ A[20,9] = 1
 
 A = pd.DataFrame(A, index=q, columns=θ)
 
-############ Matrice B avec T_ext définit à l'aide du code rayonnement ########
+############ Matrice B  #############
 b_hiver = np.zeros([nq,1])
 b_hiver[0,0] = T_ext_hiver
 b_hiver[15,0] = T_ext_hiver
@@ -221,7 +216,7 @@ G[18,18] = G18
 G[19,19] = KpN
 G[20,20] = KpS
 
-G = pd.DataFrame(G, index=q, columns=q) #### faut comprendre ça fait quoi ?
+G = pd.DataFrame(G, index=q, columns=q) 
 
 ########################## Matrice f des flux apportés ########################
 f_hiver = np.zeros((nθ,1))
@@ -267,31 +262,12 @@ f_ete[14] = phi_s
 
 f_ete = pd.DataFrame(f_ete, index=θ, columns=[1])
 
-############# Matrice C des capacités (en statique non utile) #################
-
-# Compute capacities for walls
-C_walls = wall['Density'] * wall['Specific heat'] * wall['Width']
-# Compute capacity for air
-C_air = air['Density'] * air['Specific heat'] * air['Volume']
-
-# Initialize the C matrix (2D)
-C = np.zeros((nθ, nθ))
-# Assign non-zero capacities to specific diagonal elements
-C[1, 1] = C_walls.loc['Layer_out']*Surface['Nord'] #isolant Nord
-C[3, 3] = C_walls.loc['Layer_in']*Surface['Nord'] #béton nord
-C[7, 7] = C_walls.loc['Layer_in']*Surface['Milieu']
-C[11, 11] = C_walls.loc['Layer_in']*Surface['Sud']
-C[13, 13] = C_walls.loc['Layer_out']*Surface['Sud']
-C[5, 5] = C_air #capacité des pièces
-C[9, 9] = C_air
-
-C = pd.DataFrame(C, index=θ, columns=θ)
 
 # Matrice des températures
 y = np.zeros(len(θ))     # nodes and len(θ) = 15
 pd.DataFrame(y, index=θ)
 
-#on se retrouve avec ce circuit : thermal circuit
+# thermal circuit
 print("A:", A.shape)
 print("G:", G.shape)
 print("b:", b_ete.shape)
@@ -312,7 +288,7 @@ plt.plot(y_ete, '-r')
 plt.plot([0,14],[T_ext_ete, T_ext_ete], color = 'pink', marker = '*', linestyle = 'None')
 plt.plot([5,9],[Tc_ete, Tc_ete], color = 'orange', marker = '*', linestyle = 'None')
 
-plt.title("Température dans les 14 noeuds définis dans le logement étudié")
+plt.title("Température dans les 15 noeuds définis dans le logement étudié")
 plt.xlabel("Du Nord au Sud ->") 
 plt.ylabel("Température en °C")
 plt.legend(["Températures en chaque point en hiver","Températures extérieures en hiver","Températures visées par le controller en hiver","Températures en chaque point en été","Températures extérieures en été","Températures visées par le controller en été"])
@@ -320,10 +296,14 @@ plt.legend(["Températures en chaque point en hiver","Températures extérieures
 
 #recerche des flux
 θ = range(15)
-
-y = pd.DataFrame(y_hiver, index=θ, columns=[1])
 A = np.array(A)
 A = pd.DataFrame(A, index=q, columns=θ)
 
-q = G @ (b_hiver - (A @ y))
-print(q)
+y_hiver = pd.DataFrame(y_hiver, index=θ, columns=[1])
+y_ete = pd.DataFrame(y_ete, index=θ, columns=[1])
+
+q_hiver = G @ (b_hiver - (A @ y_hiver))
+print(q_hiver)
+
+q_ete = G @ (b_ete - (A @ y_ete))
+print(q_ete)
