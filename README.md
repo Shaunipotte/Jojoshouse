@@ -31,11 +31,11 @@ python THB_dynamique.py
 ```
 
 ## Contributeurs
-Al Khawand Francesco
-Aouame Chaimaa
-Bertrand Agathe
-Creyx Chloé
-Ferrand Shaun
+- Al Khawand Francesco, 
+- Aouame Chaimaa, 
+Bertrand Agathe, 
+Creyx Chloé, 
+Ferrand Shaun, 
 
 
 ## Licence
