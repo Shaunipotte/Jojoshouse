@@ -31,7 +31,12 @@ python THB_dynamique.py
 ```
 
 ## Contributeurs
-Ce projet a été réalisé dans le cadre d'une étude sur la performance énergétique des bâtiments.
+Al Khawand Francesco
+Aouame Chaimaa
+Bertrand Agathe
+Creyx Chloé
+Ferrand Shaun
+
 
 ## Licence
 Ce projet est distribué sous la licence MIT. Voir le fichier `LICENSE` pour plus de détails.
