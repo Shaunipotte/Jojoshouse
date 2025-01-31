@@ -1,7 +1,7 @@
 # # -*- coding: utf-8 -*-
 
 
-################## Ici Cas 0 par défaut (le seul du doc) #################
+################## Ici Cas 0 par défaut  #################
 
 
 # ### les import
@@ -89,10 +89,12 @@ Qa = 80 #~80 par personne, ici c'est celui de la pièce Nord (four, télé, pers
 alpha_ext=0.5
 alpha_in=0.4
 tau=0.3
-EN_hiver = dico_moyen_hiver['nord']['total'] ###éclairement nord à rédéfinir
-ES_hiver = dico_moyen_hiver['sud']['total']  ###éclairement surd à rédéfinir
-EN_ete = dico_moyen_ete['nord']['total'] ###éclairement nord à rédéfinir
-ES_ete = dico_moyen_ete['sud']['total']  ###éclairement surd à rédéfinir
+
+EN_hiver = dico_moyen_hiver['nord']['total']
+ES_hiver = dico_moyen_hiver['sud']['total']  
+
+EN_ete = dico_moyen_ete['nord']['total'] 
+ES_ete = dico_moyen_ete['sud']['total']  
 
 
 ###############################################################################
