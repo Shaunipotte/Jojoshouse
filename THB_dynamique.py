@@ -19,7 +19,7 @@ from Donnes_dynamiques import donnees_dynamique
 ############################# Données #########################################
 ###############################################################################
 
-start_date = '2000-06-20 12:00:00' # à changer seon la journée que l'on veut
+start_date = '2000-06-20 12:00:00' # à changer selon la journée que l'on veut
 end_date = '2000-06-30 12:00:00'
 
 dico_dyn, Text_dyn = donnees_dynamique(start_date, end_date)
@@ -79,10 +79,8 @@ wall = pd.DataFrame.from_dict({'Layer_in': concrete,
 h = pd.DataFrame([{'in': 8., 'out': 25}], index=['h'])
 
 #thermostat ######
-# Kp = 1e4            # almost perfect controller Kp -> ∞
-# Kp = 1e-3           # no controller Kp -> 0
-KpN = 1e-4 #pièce nord
-KpS = 1e3 #pièce Sud
+KpN = 1e-4 #pièce nord, no controller Kp -> 0
+KpS = 1e3 #pièce Sud, almost perfect controller Kp -> ∞
 Tc = 18 #été
 #Tc = 21 #hiver
 
@@ -98,10 +96,8 @@ Qa = 80 #~80 par personne, ici c'est celui de la pièce Nord (four, télé, pers
 q = ['q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11','q12', 'q13', 'q14', 'q15', 'q16', 'q17', 'q18', 'q19', 'q20']
 # temperature nodes
 nθ = len(θ)      # number of temperature nodes
-#θ = [f'θ{i}' for i in range(nθ)] #autre méthode
 # flow-rate branches
 nq = len(q)     # number of flow branches
-#q = [f'q{i}' for i in range(nq)] #autre méthode
 
 
 ########################### matrice A des flux #############################
@@ -247,13 +243,14 @@ b = pd.Series(b, index=q)
 f = pd.Series(f, index=θ)
 y = pd.Series(y, index=θ)
 y.loc[["θ1", "θ3", "θ5", "θ7", "θ9", "θ11", "θ13"]] = 1
-#### nodes of interest, literally have no clue why we need this, but without it nothing works sooo
+
 TC = {"A": A,
       "G": G,
       "C": C,
       "b": b,
       "f": f,
       "y": y}
+
 #on se retrouve avec ce circuit : thermal circuit
 print("A:", A.shape)
 print("G:", G.shape)
@@ -343,7 +340,7 @@ u = inputs_in_time(us, input_data_set)
 θ_imp = pd.DataFrame(index=u.index)     # empty df with index for implicit Euler
 
 θ0 = 20   # initial temperatures 
-#A CHANGER POUR CONTOURNER LE PROBLEME DE TEMPS DE REPONSE
+
 θ_exp[As.columns] = θ0      # fill θ for Euler explicit with initial values θ0
 θ_imp[As.columns] = θ0      # fill θ for Euler implicit with initial values θ0
 
@@ -371,11 +368,11 @@ y['θ9'].iloc[:, 0] = pd.to_numeric(y['θ9'].iloc[:, 0], errors='coerce')
 y['θ9'].iloc[:, 1] = pd.to_numeric(y['θ9'].iloc[:, 1], errors='coerce')
 
 #pièce Nord
-Sn = 2*Surface["Plafond"]+Surface["Nord"]+Surface["Milieu"] # m², surface area of the toy house
+Sn = 2*Surface["Plafond"]+Surface["Nord"]+Surface["Milieu"] # m², surface area of the house
 q_HVAC_N_exp = KpN * (u['q19'] - y['θ5'].iloc[:, 0]) / Sn  # W/m²
 q_HVAC_N_imp = KpN * (u['q19'] - y['θ5'].iloc[:, 1]) / Sn  # W/m²
 #pièce Nord
-Ss = 2*Surface["Plafond"]+Surface["Sud"]+Surface["Milieu"]  # m², surface area of the toy house
+Ss = 2*Surface["Plafond"]+Surface["Sud"]+Surface["Milieu"]  # m², surface area of the house
 q_HVAC_S_exp = KpS * (u['q20'] - y['θ9'].iloc[:, 0]) / Ss  # W/m²
 q_HVAC_S_imp = KpS * (u['q20'] - y['θ9'].iloc[:, 1]) / Ss  # W/m²
 
